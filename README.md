@@ -1,6 +1,7 @@
 # QuranBot
 
-[![Discord](https://img.shields.io/discord/610613297452023837?label=Support%20Server)](https://discord.gg/Ud3MHJR)
+[![Discord](https://img.shields.io/discord/610613297452023837?label=Support%20Server)](https://discord.gg/Ud3MHJR) 
+[Invite](https://discordapp.com/oauth2/authorize?client_id=706134327200841870&scope=bot&permissions=1068032)
 
 This is a simple bot that can play Qur'an recitations in voice chat. There are currently 34 reciters available. 
 
