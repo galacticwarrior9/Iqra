@@ -291,6 +291,14 @@ class Quran(commands.Cog):
         elif not ctx.voice_client.is_playing():
             await ctx.send("**Nothing is being played.**")
 
+    # Leave empty voice channels.
+    @commands.Cog.listener()
+    async def on_voice_state_update(self, member, before, after):
+        if after.channel is None:
+            if len(before.channel.members) == 1 and self.bot.user in before.channel.members:
+                voice_client = discord.utils.get(self.bot.voice_clients, guild=before.channel.guild)
+                await voice_client.disconnect()
+
 
 def setup(bot):
     bot.add_cog(Quran(bot))
