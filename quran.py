@@ -8,6 +8,7 @@ RECITATION_NOT_FOUND = "**Could not find a recitation for the surah by this reci
 RECITER_NOT_FOUND = "**Couldn't find reciter!** Type `-reciters` for a list of available reciters."
 SURAH_NOT_FOUND = "**Sorry, that is not a valid surah.**"
 DISCONNECTED = "**Successfully disconnected.**"
+INVALID_VOLUME = "**The volume must be between 0 and 100.**"
 
 reciters = {
     'abdulbaset abdulsamad': 'abdulbaset_mujawwad',
@@ -237,7 +238,7 @@ class Quran(commands.Cog):
         for key in readable_reciters.keys():
             reciter_list = reciter_list + f'{key}, '
 
-        await ctx.send(f'**Reciter List**\n```{reciter_list}```')
+        await ctx.send(f'**Reciter List**\n```fix\n{reciter_list}```')
 
     @commands.command(name="qlive")
     async def qlive(self, ctx):
@@ -245,6 +246,14 @@ class Quran(commands.Cog):
         ctx.voice_client.play(player)
 
         await ctx.send("Now playing **Makkah Live** (قناة القرآن الكريم- بث مباشر).")
+
+    @commands.command(name="qvolume")
+    async def qvolume(self, ctx, volume: int):
+        if not isinstance(volume, int) or not 0 <= volume <= 100:
+            await ctx.send(INVALID_VOLUME)
+        player = players[ctx.guild.id]
+        player.volume = int
+        await ctx.send(f"Successfully changed volume to {volume}")
 
     @commands.command(name="qhelp")
     async def qhelp(self, ctx):
@@ -254,7 +263,10 @@ class Quran(commands.Cog):
         em.add_field(name="-reciters", value="Shows the list of reciters for `-qplay`.", inline=False)
         em.add_field(name="-qlive", value="Plays a live audio stream from al-Masjid al-Ḥarām in Makkah.", inline=False)
         em.add_field(name="-qstop", value="Stops playing.", inline=False)
-        em.add_field(name="Information", value="• [GitHub](https://github.com/galacticwarrior9/QuranBot)\n• [Support Server](https://discord.gg/Ud3MHJR)", inline=False)
+        em.add_field(name="-qvolume", value="Changes the audio volume. The volume must be between 1 and "
+                                            "100.\n\n`-qvolume <volume>`\n\nExample: `-qvolume 100`", inline=False)
+        em.add_field(name="Information", value="• [GitHub](https://github.com/galacticwarrior9/QuranBot)"
+                                               "\n• [Support Server](https://discord.gg/Ud3MHJR)", inline=False)
         em.set_footer(text="Support Server: https://discord.gg/Ud3MHJR")
         await ctx.send(embed=em)
 
@@ -268,6 +280,16 @@ class Quran(commands.Cog):
                 await ctx.send("**You are not connected to a voice channel.**")
         elif ctx.voice_client.is_playing():
             await ctx.send("**Already playing**. To stop playing, type `-qstop`.")
+
+    @qvolume.before_invoke
+    async def ensure_volume(self, ctx):
+        if ctx.voice_client is None:
+            if ctx.author.voice:
+                await ctx.send("**Nothing is being played.**")
+            else:
+                await ctx.send("**You are not connected to a voice channel.**")
+        elif not ctx.voice_client.is_playing():
+            await ctx.send("**Nothing is being played.**")
 
 
 def setup(bot):
