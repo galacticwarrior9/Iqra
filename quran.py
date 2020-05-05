@@ -273,8 +273,13 @@ class Quran(commands.Cog):
             em.set_image(url=image)
         return em
 
-    @commands.command(name="qplay")
-    async def qplay(self, ctx, surah: int, *, reciter: str = 'mishary al-afasy'):
+    @commands.group()
+    async def qplay(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send('**Invalid arguments**. For help, type `-qhelp qplay`.')
+
+    @qplay.command()
+    async def surah(self, ctx, surah: int, *, reciter: str = 'mishary al-afasy'):
         if not isinstance(surah, int):
             return await ctx.send('Usage: `-qplay <surah number> <reciter>`\nExample: `-qplay 1 abdul rahman al-sudais`'
                                   '\n\nType `-reciters` for a list of reciters.')
@@ -282,11 +287,9 @@ class Quran(commands.Cog):
         reciter = reciter.lower()
 
         if reciter not in mp3quran_reciters.keys():
-            await ctx.voice_client.disconnect()
             return await ctx.send(RECITER_NOT_FOUND)
 
         if not 0 < surah <= 114:
-            await ctx.voice_client.disconnect()
             return await ctx.send(SURAH_NOT_FOUND)
 
         reciter_name = reciter.replace('-', ' - ').title().replace(' - ', '-')
@@ -297,17 +300,15 @@ class Quran(commands.Cog):
 
         try:
             player = await YTDLSource.from_url(file_url, loop=self.bot.loop, stream=True)
-        except:
-            await ctx.voice_client.disconnect()
-            return await ctx.send(RECITATION_NOT_FOUND)
+        except: return await ctx.send(RECITATION_NOT_FOUND)
 
         players[ctx.guild.id] = player
+
         try:
-            ctx.voice_client.play(player, after=lambda x: asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect(),
-                                  self.bot.loop))
-        except discord.errors.ClientException:
-            await ctx.voice_client.disconnect()
-            raise
+            await ctx.author.voice.channel.connect()
+            ctx.voice_client.play(player, after=lambda x: asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect()
+                                  , self.bot.loop))
+        except discord.errors.ClientException: return
 
         transliterated_surah, arabic_surah = await self.get_surah_info(surah)
         description = f'Playing **Surah {transliterated_surah}** ({arabic_surah}).\nReciter: **{reciter_name}**.' \
@@ -316,44 +317,41 @@ class Quran(commands.Cog):
         em = self.make_embed("Qurʼān", description, f'Requested by {ctx.message.author}', 0x006400)
         await ctx.send(embed=em)
 
-    @commands.command(name="qayah")
-    async def qayah(self, ctx, ref: str, *, reciter: str = 'mishary al-afasy'):
+    @qplay.command()
+    async def ayah(self, ctx, ref: str, *, reciter: str = 'mishary al-afasy'):
         try:
             surah, ayah = ref.split(':')
             surah = int(surah)
             ayah = int(ayah)
 
         except:
-            await ctx.voice_client.disconnect()
             return await ctx.send("Invalid arguments. Commands: `-qayah <surah>:<ayah> <reciter>`."
                                   "\n\nExample: `-qayah 2:255 abdul rahman al-sudais`.")
 
         reciter = reciter.lower()
 
         if reciter not in everyayah_reciters:
-            await ctx.voice_client.disconnect()
             return await ctx.send(RECITER_NOT_FOUND)
 
         if not 0 < surah <= 114:
-            await ctx.voice_client.disconnect()
             return await ctx.send(SURAH_NOT_FOUND)
 
         verse_count = await self.get_verse_count(surah)
         if ayah > verse_count:
-            await ctx.voice_client.disconnect()
             return await ctx.send(NON_EXISTENT_VERSE.format(verse_count))
 
         url = self.make_ayah_url(surah, ayah, reciter)
-        print(url)
-        try:
-            player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
+        try: player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
         except:
-            await ctx.voice_client.disconnect()
             return await ctx.send(RECITATION_NOT_FOUND)
 
         players[ctx.guild.id] = player
-        ctx.voice_client.play(player, after=lambda x: asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect(),
-                                                                                       self.bot.loop))
+        try:
+            await ctx.author.voice.channel.connect()
+            ctx.voice_client.play(player, after=lambda x: asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect()
+                                                                                           , self.bot.loop))
+        except discord.errors.ClientException:
+            return
 
         reciter = reciter.replace('-', ' - ').title().replace(' - ', '-')
         transliterated_surah, arabic_surah = await self.get_surah_info(surah)
@@ -364,8 +362,8 @@ class Quran(commands.Cog):
                              f'https://everyayah.com/data/QuranText_jpg/{surah}_{ayah}.jpg')
         await ctx.send(embed=em)
 
-    @commands.command(name="qpage")
-    async def qpage(self, ctx, page: int, *, reciter: str = 'mishary al-afasy'):
+    @qplay.command()
+    async def page(self, ctx, page: int, *, reciter: str = 'mishary al-afasy'):
 
         try:
             page = int(page)
@@ -378,11 +376,9 @@ class Quran(commands.Cog):
         readable_reciter = reciter.replace('-', ' - ').title().replace(' - ', '-')
 
         if reciter not in everyayah_reciters:
-            await ctx.voice_client.disconnect()
             return await ctx.send(RECITER_NOT_FOUND)
 
         if not 0 < page <= 604:
-            await ctx.voice_client.disconnect()
             return await ctx.send(PAGE_NOT_FOUND)
 
         url, url_page = self.make_page_url(page, reciter)
@@ -390,12 +386,15 @@ class Quran(commands.Cog):
         try:
             player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
         except:
-            await ctx.voice_client.disconnect()
             return await ctx.send(RECITATION_NOT_FOUND)
 
         players[ctx.guild.id] = player
-        ctx.voice_client.play(player, after=lambda x: asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect(),
-                                                                                       self.bot.loop))
+        try:
+            await ctx.author.voice.channel.connect()
+            ctx.voice_client.play(player, after=lambda x: asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect()
+                                                                                           , self.bot.loop))
+        except discord.errors.ClientException:
+            return
 
         description = f'Playing **Page {page}.**\nReciter: **{readable_reciter}**.'
 
@@ -411,6 +410,7 @@ class Quran(commands.Cog):
 
     @commands.command(name="qlive")
     async def qlive(self, ctx, *, link: str = 'makkah'):
+        link = link.lower()
         if link == 'quran radio':
             player = await YTDLSource.from_url(self.quranradio_url, loop=self.bot.loop, stream=True)
             ctx.voice_client.play(player)
@@ -450,48 +450,22 @@ class Quran(commands.Cog):
         everyayah_reciter_list = ''
         for key in everyayah_reciters.keys():
             everyayah_reciter_list = everyayah_reciter_list + f'{key}, '
-            em = discord.Embed(description='\n\n__**Reciters for `-qplay`**__\n\nAvailable reciters: '
-                                           f'**{len(mp3quran_reciters.keys())}**\n\nTo search reciters, type `-qsearch '
-                                           f'<reciter name>`, e.g. `-qsearch dossary`\n'
-                                           f'[Full reciter list](https://github.com/galacticwarrior9/QuranBot/blob/mas'
-                                           f'ter/Reciters.md)'
-                                           f'\n\n__**Reciters for `-qayah` and `-qpage`**__'
-                                           f'\n\nAvailable reciters: **{len(everyayah_reciters.keys())}**\n\n'
-                                           f'List: ```{everyayah_reciter_list}```', colour=0x006400, title="Reciters")
-            await ctx.send(embed=em)
-
-    @commands.command(name="qhelp")
-    async def qhelp(self, ctx):
-        em = discord.Embed(title='Help', colour=0x006400)
-        em.add_field(name="-qplay", value="Plays a recitation of a surah.\n\n__Usage__\n\n`-qplay <surah number> <recit"
-                                          "er>`\n\nExample: `-qplay 1 abu bakr al-shatri`", inline=True)
-        em.add_field(name="-qayah", value="Plays a recitation of a single verse.\n\n__Usage__\n\n`-qplay <surah>:<ayah>"
-                                          "`\n\nExample: `-qayah 2:255 hatem farid`", inline=True)
-        em.add_field(name="-qpage", value="Plays a recitation of a page from the mushaf.\n\n__Usage__\n\n`-qpage <page>"
-                                          " <reciter>`\n\nExample: `-qpage 60 abdul rahman al-sudais`", inline=True)
-        em.add_field(name="-reciters", value="Shows the list of reciters.", inline=True)
-        em.add_field(name="-qsearch", value="Search the `-qplay` reciter list.\n\n__Usage__\n\n`-qsearch <reciter name>"
-                                            "`\n\nExample: `-qsearch dossary`", inline=True)
-        em.add_field(name="-qlive", value="Plays a live audio stream.\n\n Type `-qlive makkah` for a live audio stream "
-                                          "from al-Masjid al-Ḥarām in Makkah.\n\n Type `-qlive quran radio` for Qur'an "
-                                          "radio.",
-                     inline=True)
-        em.add_field(name="-qstop", value="Stops playing.", inline=True)
-        em.add_field(name="-qvolume", value="Changes the audio volume. The volume must be between 1 and 100.",
-                     inline=True)
-        em.add_field(name="Information", value="• [GitHub](https://github.com/galacticwarrior9/QuranBot)"
-                                               "\n• [Support Server](https://discord.gg/Ud3MHJR)", inline=True)
+        em = discord.Embed(description='\n\n__**Surah Reciters**__\n\nAvailable reciters: '
+                                       f'**{len(mp3quran_reciters.keys())}\n\n'
+                                       f'[Full surah reciter list](https://github.com/galacticwarrior9/QuranBot/blob/ma'
+                                       f'ster/Reciters.md)'
+                                       f'**\n\nTo search this list, type `-qsearch <reciter name>`, e.g. '
+                                       f'`-qsearch dossary`\n'
+                                       f'\n\n__**Ayah and Page Reciters**__'
+                                       f'\n\nAvailable reciters: **{len(everyayah_reciters.keys())}**\n\n'
+                                       f'List: ```{everyayah_reciter_list}```', colour=0x006400, title="Reciters")
         await ctx.send(embed=em)
 
     @qplay.before_invoke
-    @qayah.before_invoke
     @qlive.before_invoke
-    @qpage.before_invoke
     async def ensure_voice(self, ctx):
         if ctx.voice_client is None:
-            if ctx.author.voice:
-                await ctx.author.voice.channel.connect()
-            else:
+            if not ctx.author.voice:
                 await ctx.send("**You are not connected to a voice channel.**")
         elif ctx.voice_client.is_playing():
             await ctx.send("**Already playing**. To stop playing, type `-qstop`.")

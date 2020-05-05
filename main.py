@@ -12,7 +12,7 @@ async def on_ready():
 
     bot.remove_command('help')
 
-    cogs = ['quran']
+    cogs = ['quran', 'help']
 
     for cog in cogs:
         bot.load_extension(cog)

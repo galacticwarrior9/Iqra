@@ -1,5 +1,6 @@
 
 
+
 # Iqra
 
 [![Discord](https://img.shields.io/discord/610613297452023837?label=Support%20Server)](https://discord.gg/Ud3MHJR) 
@@ -10,42 +11,43 @@ This is a simple bot that can play recitations of surahs, ayahs and mushaf pages
 ## Commands
 
 ### -qplay
-Plays a surah in the voice channel you are connected to. 
+`-qplay`  instructs the bot to play a recitation of a surah, ayah or page from the Qur'an. 
+#### Playing a surah
 ```
 -qplay <surah number> <optional reciter>
 ```
 If no reciter is specified, Mishary al-Afasy's recitation will be used. 
-[Click here for the list of reciters for `-qplay`](https://github.com/galacticwarrior9/QuranBot/blob/master/Reciters.md).
+[Click here for the list of **surah** reciters](https://github.com/galacticwarrior9/QuranBot/blob/master/Reciters.md).
 
-**Example 1**: `-qplay 1 abu bakr al-shatri`
+**Example 1**: `-qplay surah 1 abu bakr al-shatri`
 This would play Abu Bakr al-Shatri's recitation of Surah al-Fatiha.
 
-**Example 2**: `-qplay 112 abdul rahman al-sudais`
+**Example 2**: `-qplay surah 112 abdul rahman al-sudais`
 This would play Abdul Rahman al-Sudais' recitation of Surah al-Ikhlas. 
 
-### -qayah
-Plays the recitation of a single ayah in voice chat.
+#### Playing a single ayah
 ```
--qplay <surah>:<ayah> <optional reciter>
+-qplay ayah <surah>:<ayah> <optional reciter>
 ```
 If no reciter is specified, Mishary al-Afasy's recitation will be used.
 
-**Example**: `-qayah 2:255 hatem farid`
+**Example**: `-qayah ayah 2:255 hatem farid`
 This would play Hatem Farid's recitation of Surah al-Baqarah, ayah 255.
 
-### -qpage
-Plays the recitation of a page from a standard 604-page *mushaf*.
+#### Playing a page from the mushaf
+
 ```
--qpage <page> <optional reciter>
+-qplay page <page number> <optional reciter>
 ```
+`<page>` must be between 1 and 604.
 If no reciter is specified, Mishary al-Afasy's recitation will be used.
 
-**Example**: `-qayah 10 hani al-rifai`
+**Example**: `-qplay page 10 hani al-rifai`
 This would play Hani al-Rifai's recitation of the 10th page of a standard *mushaf*.
 
 ### -reciters
-Gets the list of reciters for `-qplay`, `-qayah` and `-qpage`.
-[Click here for the list of reciters for `-qplay`](https://github.com/galacticwarrior9/QuranBot/blob/master/Reciters.md)
+Gets the list of reciters for `-qplay`.
+[Click here for the list of **surah** reciters.](https://github.com/galacticwarrior9/QuranBot/blob/master/Reciters.md)
 #### -qsearch
 Use 	`-qsearch` to search the list of reciters for `-qplay`. For example, `-qsearch dossary` would return Ibrahim al-Dossary and Yasser al-Dossary.
 
@@ -63,7 +65,7 @@ Changes the volume of the bot.
 `<volume>` must be a number between 0 and 100, e.g. `-qvolume 50`.
 
 ### -qstop
-Stops playing.
+Disconnects the bot from voice chat.
 
 ### -qhelp
 Lists all commands and how to use them. 

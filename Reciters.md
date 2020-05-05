@@ -1,6 +1,6 @@
 
 ## `-qplay` Reciter List 
-Use these reciter names with the `-qplay` command. For example, `-qplay 1 Raad Al-Kurdi` would play Raad al-Kurdi's recitation of Surah al-Fatiha.
+Use these reciter names when playing surahs with the `-qplay` command. For example, `-qplay surah 1 Raad Al-Kurdi` would play Raad al-Kurdi's recitation of Surah al-Fatiha.
 
 You can use `-qsearch` to search this list from Discord. For example, `-qsearch dossary` would return Ibrahim al-Dossary and Yasser al-Dossary.
 
