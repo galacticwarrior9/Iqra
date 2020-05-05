@@ -1,6 +1,6 @@
 
 
-# QuranBot
+# Iqra
 
 [![Discord](https://img.shields.io/discord/610613297452023837?label=Support%20Server)](https://discord.gg/Ud3MHJR) 
 [Invite](https://discordapp.com/oauth2/authorize?client_id=706134327200841870&scope=bot&permissions=1068032)
@@ -46,6 +46,8 @@ This would play Hani al-Rifai's recitation of the 10th page of a standard *musha
 ### -reciters
 Gets the list of reciters for `-qplay`, `-qayah` and `-qpage`.
 [Click here for the list of reciters for `-qplay`](https://github.com/galacticwarrior9/QuranBot/blob/master/Reciters.md)
+#### -qsearch
+Use 	`-qsearch` to search the list of reciters for `-qplay`. For example, `-qsearch dossary` would return Ibrahim al-Dossary and Yasser al-Dossary.
 
 ### -qlive
 Plays a live audio stream.
