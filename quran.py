@@ -3,6 +3,7 @@ import asyncio
 import youtube_dl
 import aiohttp
 from discord.ext import commands
+from fuzzywuzzy import process
 
 RECITATION_NOT_FOUND = "**Could not find a recitation for the surah by this reciter.** Try a different surah."
 RECITER_NOT_FOUND = "**Couldn't find reciter!** Type `-reciters` for a list of available reciters."
@@ -13,51 +14,133 @@ INVALID_VOLUME = "**The volume must be between 0 and 100.**"
 INVALID_VERSE = "**Please provide a verse.** For example, 1:2 is Surah al-Fatiha, ayah 2."
 NON_EXISTENT_VERSE = "**There are only {} verses in this surah.**"
 
-quranicaudio_reciters = {
-    'abdulbaset abdulsamad': 'abdulbaset_mujawwad',
-    'sudais': 'abdurrahmaan_as-sudays',
-    'adel kalbani': 'adel_kalbani',
-    'abdur-rashid sufi': 'abdurrashid_sufi',
-    'mishary al-afasy': 'mishaari_raashid_al_3afaasee',
-    'muhammad al-minshawi': 'muhammad_siddeeq_al-minshaawee',
-    'abu bakr al-shatri': 'abu_bakr_ash-shatri_tarawee7',
-    'muhammad al-luhaidan': 'muhammad_alhaidan',
-    'yasser al-dussary': 'yasser_ad-dussary',
-    'saad al-ghamdi': 'sa3d_al-ghaamidi',
-    'ahmed al-ajmy': 'ahmed_ibn_3ali_al-3ajamy',
-    'maher al-muaiqly': 'maher_256',
-    'abdullah basfar': 'abdullaah_basfar',
-    'ali al-hudhaify': 'huthayfi',
-    'saud al-shuraym': 'sa3ood_al-shuraym',
-    'muhammad jibreel': 'muhammad_jibreel',
-    'hani al-rifai': 'rifai',
-    'ibrahim al-jibrin': 'jibreen',
-    'idris akbar': 'idrees_akbar',
-    'salah bukhatir': 'salaah_bukhaatir',
-    'mahmoud khalil al-hussary': 'mahmood_khaleel_al-husaree_iza3a',
-    'nasser al-qatami': 'nasser_bin_ali_alqatami',
-    'aziz alili': 'aziz_alili',
-    'fares abbad': 'fares',
-    'abdullah awad al-juhani': 'abdullaah_3awwaad_al-juhaynee',
-    'muhammad al-mehysni': 'mehysni',
-    'muhammad sulayman patel': 'muhammad_patel',
-    'abdullah matroud': 'abdullah_matroud',
-    'abdullah jabir': 'abdullaah_alee_jaabir',
-    'nabil al-rifai': 'nabil_rifa3i',
-    'abdulbari al-thubaity': 'thubaity',
-    'khalid al-qahtani': 'khaalid_al-qahtaanee',
-    'wadee hammadi al-yamani': 'wadee_hammadi_al-yamani',
-    'tawfeeq al-sawaigh': 'tawfeeq_bin_saeed-as-sawaaigh',
-    'mahmood ali al-bana': 'mahmood_ali_albana',
-    'muhammad ayyub': 'muhammad_ayyoob_hq',
-    'sahl yasin': 'sahl_yaaseen',
-    'hamad sinan': 'hamad_sinan',
-    'salah al-budair': 'salahbudair',
-    'hatem farid': 'hatem_farid',
+mp3quran_reciters = {
+    'abdelbari al-toubayti': 0,
+    'abdulaziz al-ahmad': 1,
+    'abdulaziz al-asiri': 2,
+    'abdulaziz al-zahrani': 3,
+    'abdulbari muhammad': 4,
+    'abdulbasit abdulsamad': 6,
+    'abdulhadi kanakeri': 10,
+    'abdullah al-juhany': 12,
+    'abdullah al-kandari': 13,
+    'abdullah al-khalaf': 14,
+    'abdullah al-matroud': 15,
+    'abdullah basfar': 18,
+    'abdullah khayat': 20,
+    'abdullah qaulan': 21,
+    'abdul muhsin al-qasim': 23,
+    'abdul muhsin al-harthy': 25,
+    'abdul muhsin al-obaikan': 26,
+    'abdul rahman al-majed': 27,
+    'abdul rahman alusi': 28,
+    'abdul rahman al-sudais': 29,
+    'abdul rashid sufi': 30,
+    'abdul wadud haneef': 33,
+    'abu bakr al-shatri': 185,
+    'addokali muhammad al-alim': 35,
+    'adel al-kalbani': 36,
+    'adel rayan': 37,
+    'ahmad al-ajmy': 39,
+    'ahmad al-hawashi': 40,
+    'ahmad khader al-tarabulsi': 42,
+    'ahmad nauina': 43,
+    'ahmad saber': 44,
+    'ahmad al-suwailem': 46,
+    'ahmad al-amer': 48,
+    'akram al-alaqmi': 50,
+    'al-qaria yaseen': 51,
+    'al-ashri omran': 52,
+    'alfateh alzubair': 53,
+    'ali al-hudhaify': 56,
+    'ali hajjaj al-souissi': 58,
+    'ali jaber': 76,
+    'aloyoon al-koshi': 60,
+    'alzain muhammad ahmad': 61,
+    'badr al-turki': 62,
+    'bandar baleela': 63,
+    'emad hafez': 65,
+    'fares abbad': 68,
+    'hani al-rifai': 71,
+    'hatem farid': 72,
+    'ibrahim al-akhdar': 77,
+    'ibrahim al-jibreen': 79,
+    'ibrahim al-dossary': 80,
+    'ibrahim al-jormy': 82,
+    'idris akbar': 83,
+    'jamaan alosaimi': 85,
+    'jamal shaker abdullah': 87,
+    'khalid al-qahtani': 88,
+    'khalid abdulkafi': 89,
+    'khalid al-jileel': 90,
+    'khalid al-mohana': 94,
+    'khalifa al-tunaiji': 96,
+    'maher al-muaiqly': 99,
+    'maher shakhashero': 100,
+    'mahmoud al-rifai': 101,
+    'mahmoud al-sheimy': 102,
+    'mahmoud ali al-banna': 103,
+    'mahmoud khalil al-hussary': 107,
+    'mishary al-afasy': 113,
+    'moeedh al-harthi': 114,
+    'muhammad abdulkarem': 116,
+    'muhammad al-abdullah': 117,
+    'muhammad al-airawy': 119,
+    'muhammad al-tablawi': 120,
+    'muhammad al-bukheet': 121,
+    'muhammad al-monshed': 122,
+    'muhammad rashad al-shareef': 124,
+    'muhammad saleh alim shah': 126,
+    'muhammad al-luhaidan': 128,
+    'muhammad al-muhasny': 129,
+    'muhammad ayyub': 130,
+    'muhammad jibreel': 132,
+    'muhammad osman khan': 133,
+    'muhammad siddiq al-minshawi': 136,
+    'mousa bilal': 137,
+    'muftah al-saltany': 139,
+    'mustafa al-lahoni': 146,
+    'mustafa ismail': 147,
+    'mustafa raad al-azawi': 148,
+    'nabil al-rifai': 149,
+    'nasser al-obaid': 150,
+    'nasser al-majed': 151,
+    'nasser alosfor': 152,
+    'nasser al-qatami': 153,
+    'neamah al-hassan': 154,
+    'omar al-qazabri': 156,
+    'othman al-ansary': 157,
+    'raad al-kurdi': 158,
+    'rachid belalya': 159,
+    'rami aldeais': 162,
+    'saad al-ghamdi': 166,
+    'saad almqren': 167,
+    'saber abdul hakim': 168,
+    'sahl yasin': 169,
+    'salah al-budair': 171,
+    'salah al-hasim': 172,
+    'salah al-sahood': 177,
+    'saud al-shuraym': 182,
+    'sayeed ramadan': 183,
+    'shirazad taher': 186,
+    'salah bukhatir': 187,
+    'tareq abdulgani daawob': 188,
+    'tawfeeq al-sayegh': 189,
+    'wadeea al-yamani': 191,
+    'waleed alnaehi': 192,
+    'yahya hawwa': 196,
+    'yasser al-dossary': 197,
+    'yasser al-faylakawi': 198,
+    'yasser al-mazroyee': 199,
+    'yasser al-qurashi': 200,
+    'yasser salamah': 201,
+    'yousef alshoaey': 202,
+    'yousef bin noah ahmad': 203,
+    'zaki daghistani': 206
 }
 
 everyayah_reciters = {
-    'sudais': 'Abdurrahmaan_As-Sudais_192kbps',
+    'abdulrahman al-sudais': 'Abdurrahmaan_As-Sudais_192kbps',
     'mishary al-afasy': 'Alafasy_128kbps',
     'abdullah basfar': 'Abdullah_Basfar_192kbps',
     'abu bakr al-shatri': 'Abu_Bakr_Ash-Shaatree_128kbps',
@@ -74,50 +157,6 @@ everyayah_reciters = {
     'abdullah matroud': 'Abdullah_Matroud_128kbps',
     'mahmoud khalil al-hussary': 'Husary_128kbps',
     'muhammad al-tablawi': 'Mohammad_al_Tablaway_128kbps'
-}
-
-readable_reciters = {
-    'abdulbaset abdulsamad': 'Abdul Baset Abdul Samad',
-    'sudais': 'Abdur-Rahman as-Sudais',
-    'adel kalbani': 'Adel Kalbani',
-    'abdur-rashid sufi': 'Abdur-Rahman Sufi',
-    'mishary al-afasy': 'Mishari Rashid al-`Afasy',
-    'muhammad al-minshawi': 'Muhammad Siddiq al-Minshawi',
-    'abu bakr al-shatri': 'Abu Bakr al-Shatri',
-    'yasser al-dussary': 'Yasser al-Dussary',
-    'saad al-ghamdi': "Sa'ad al-Ghamdi",
-    'ahmed al-ajmy': 'Ahmed al-Ajmy',
-    'maher al-muaiqly': 'Maher al-Muaiqly',
-    'abdullah basfar': 'Abdullah Basfar',
-    'ali al-hudhaify': 'Ali Abdur-Rahman al-Hudhaify (علي بن عبد الرحمن الحذيفي)',
-    'saud al-shuraym': 'Sa`ud ash-Shuraym',
-    'muhammad jibreel': 'Muhammad Jibreel',
-    'hani al-rifai': 'Hani al-Rifai',
-    'ibrahim al-jibrin': 'Ibarahim al-Jibrin',
-    'idris akbar': 'Idris Akbar',
-    'salah bukhatir': 'Salah Bukhatir',
-    'mahmoud khalil al-hussary': 'Mahmoud Khalil al-Hussary',
-    'nasser al-qatami': 'Nasser al-Qatami',
-    'aziz alili': 'Aziz Alili',
-    'fares abbad': 'Fares Abbad',
-    'abdullah awad al-juhani': 'Abdullah Awad al-Juhani',
-    'muhammad al-mehysni': 'Muhammad al-Mehysni',
-    'muhammad sulayman patel': 'Muhammad Sulayman Patel',
-    'abdullah matroud': 'Abdullah Matroud',
-    'abdullah jabir': 'Abdullah Jabir (Taraweeh)',
-    'nabil al-rifai': 'Nabil ar-Rifai',
-    'abdulbari al-thubaity': 'Abdulbari ath-Thubaity',
-    'khalid al-qahtani': 'Khalid al-Qahtani',
-    'wadee hammadi al-yamani': 'Wadee Hammadi al-Yamani',
-    'tawfeeq al-sawaigh': "Tawfeeq ibn Sa`id as-Sawa'igh",
-    'mahmood ali al-bana': 'Mahmood Ali Al-Bana',
-    'muhammad ayyub': 'Muhammad Ayyub (Taraweeh)',
-    'sahl yasin': 'Sahl Yaseen',
-    'hamad sinan': 'Hamad Sinan',
-    'salah al-budair': 'Salah al-Budair',
-    'hatem farid': 'Hatem Farid',
-    'muhsin al-qasim': 'Muhsin al-Qasim',
-    'muhammad al-tablawi': 'Muhammad al-Tablawi'
 }
 
 players = {}
@@ -159,10 +198,6 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
         data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
 
-        if 'entries' in data:
-            # take first item from a playlist
-            data = data['entries'][0]
-
         filename = data['url'] if stream else ytdl.prepare_filename(data)
 
         return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
@@ -172,37 +207,17 @@ class Quran(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.session = aiohttp.ClientSession(loop=bot.loop)
-        self.audio_url = 'https://download.quranicaudio.com/quran/{}/{}.mp3'
-        self.audio_url_2 = 'https://download.quranicaudio.com/quran/{}/complete/{}.mp3'
-        self.audio_url_3 = 'https://download.quranicaudio.com/quran/{}/collection/{}.mp3'
         self.info_url = 'http://api.quran.com:3000/api/v3/chapters/{}'
-        self.live_url = 'http://66.226.10.51:8000/SaudiTVArabic?dl=1'
+        self.reciter_info_url = 'http://mp3quran.net/api/_english.php'
+        self.makkah_url = 'http://66.226.10.51:8000/SaudiTVArabic?dl=1'
+        self.quranradio_url = 'http://live.mp3quran.net:8006/stream?type=http&nocache=29554'
         self.page_url = 'https://everyayah.com/data/{}/PageMp3s/Page{}.mp3'
         self.ayah_url = 'https://everyayah.com/data/{}/{}.mp3'
         self.mushaf_url = 'https://www.searchtruth.org/quran/images1/{}.jpg'
 
-    def make_url(self, surah, reciter, url_number):
-        if 0 < surah < 10:          url_surah = f'00{surah}'
-        elif 10 <= surah < 100:     url_surah = f'0{surah}'
-        else:                       url_surah = f'{surah}'
-
-        try: url_reciter = quranicaudio_reciters[reciter]
-        except KeyError: return None
-
-        if url_number == 1: url =   self.audio_url.format(url_reciter, url_surah)
-        elif url_number == 2: url = self.audio_url_2.format(url_reciter, url_surah)
-        else: url =                 self.audio_url_3.format(url_reciter, url_surah)
-
-        return url
-
     def make_ayah_url(self, surah, ayah, reciter):
-        if 0 < surah < 10:          url_surah = f'00{surah}'
-        elif 10 <= surah < 100:     url_surah = f'0{surah}'
-        else:                       url_surah = f'{surah}'
-
-        if 0 < ayah < 10:           url_ayah = f'00{ayah}'
-        elif 10 <= ayah < 100:      url_ayah = f'0{ayah}'
-        else:                       url_ayah = f'{ayah}'
+        url_surah = str(surah).zfill(3)
+        url_ayah = str(ayah).zfill(3)
 
         try: url_reciter = everyayah_reciters[reciter]
         except KeyError: return None
@@ -213,27 +228,36 @@ class Quran(commands.Cog):
         return url
 
     def make_page_url(self, page, reciter):
-        if 0 < page < 10:          url_page = f'00{page}'
-        elif 10 <= page < 100:     url_page = f'0{page}'
-        else:                      url_page = f'{page}'
-
         try: url_reciter = everyayah_reciters[reciter]
         except KeyError: return None
 
+        url_page = str(page).zfill(3)
         url = self.page_url.format(url_reciter, url_page)
 
         return url, url_page
 
-    async def get_info(self, surah, reciter):
+    async def get_surah_info(self, surah):
         async with self.session.get(self.info_url.format(surah)) as r:
             data = await r.json()
-
             name = data['chapter']['name_simple']
             arabic_name = data['chapter']['name_arabic']
 
-        reciter = readable_reciters[reciter.lower()]
+        return name, arabic_name
 
-        return name, arabic_name, reciter
+    async def get_qplay_meta(self, reciter):
+        async with self.session.get(self.reciter_info_url) as r:
+            data = await r.json()
+
+            index_url = data['reciters'][reciter]['Server']
+            riwayah = data['reciters'][reciter]['rewaya']
+
+        return index_url, riwayah
+
+    @staticmethod
+    def get_qplay_file(url, surah):
+        file_name = str(surah).zfill(3) + '.mp3'
+        file_url = f'{url}/{file_name}'
+        return file_url
 
     async def get_verse_count(self, surah):
         async with self.session.get(self.info_url.format(surah)) as r:
@@ -252,40 +276,42 @@ class Quran(commands.Cog):
     @commands.command(name="qplay")
     async def qplay(self, ctx, surah: int, *, reciter: str = 'mishary al-afasy'):
         if not isinstance(surah, int):
-            await ctx.send('Usage: `-qplay <surah number> <reciter>`\nExample: `-qplay 1 sudais`'
-                           '\n\nType `-reciters` for a list of reciters.')
+            return await ctx.send('Usage: `-qplay <surah number> <reciter>`\nExample: `-qplay 1 abdul rahman al-sudais`'
+                                  '\n\nType `-reciters` for a list of reciters.')
 
         reciter = reciter.lower()
 
-        if reciter not in quranicaudio_reciters:
+        if reciter not in mp3quran_reciters.keys():
             await ctx.voice_client.disconnect()
             return await ctx.send(RECITER_NOT_FOUND)
 
         if not 0 < surah <= 114:
+            await ctx.voice_client.disconnect()
             return await ctx.send(SURAH_NOT_FOUND)
 
-        url = self.make_url(surah, reciter, 1)
+        reciter_name = reciter.replace('-', ' - ').title().replace(' - ', '-')
+        reciter = mp3quran_reciters[reciter]
+
+        index_url, riwayah = await self.get_qplay_meta(reciter)
+        file_url = self.get_qplay_file(index_url, surah)
 
         try:
-            player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
+            player = await YTDLSource.from_url(file_url, loop=self.bot.loop, stream=True)
         except:
-            try:
-                url = self.make_url(surah, reciter, 2)
-                player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
-            except:
-                try:
-                    url = self.make_url(surah, reciter, 3)
-                    player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
-                except:
-                    await ctx.voice_client.disconnect()
-                    return await ctx.send(RECITATION_NOT_FOUND)
+            await ctx.voice_client.disconnect()
+            return await ctx.send(RECITATION_NOT_FOUND)
 
         players[ctx.guild.id] = player
-        ctx.voice_client.play(player, after=lambda x: asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect(),
-                                                                                       self.bot.loop))
+        try:
+            ctx.voice_client.play(player, after=lambda x: asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect(),
+                                  self.bot.loop))
+        except discord.errors.ClientException:
+            await ctx.voice_client.disconnect()
+            raise
 
-        transliterated_surah, arabic_surah, reciter = await self.get_info(surah, reciter)
-        description = f'Playing **Surah {transliterated_surah}** ({arabic_surah}). \nReciter: **{reciter}**.'
+        transliterated_surah, arabic_surah = await self.get_surah_info(surah)
+        description = f'Playing **Surah {transliterated_surah}** ({arabic_surah}).\nReciter: **{reciter_name}**.' \
+                      f'\nRiwayah: {riwayah}'
 
         em = self.make_embed("Qurʼān", description, f'Requested by {ctx.message.author}', 0x006400)
         await ctx.send(embed=em)
@@ -300,7 +326,7 @@ class Quran(commands.Cog):
         except:
             await ctx.voice_client.disconnect()
             return await ctx.send("Invalid arguments. Commands: `-qayah <surah>:<ayah> <reciter>`."
-                                  "\n\nExample: `-qayah 2:255 sudais`.")
+                                  "\n\nExample: `-qayah 2:255 abdul rahman al-sudais`.")
 
         reciter = reciter.lower()
 
@@ -329,11 +355,13 @@ class Quran(commands.Cog):
         ctx.voice_client.play(player, after=lambda x: asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect(),
                                                                                        self.bot.loop))
 
-        transliterated_surah, arabic_surah, reciter = await self.get_info(surah, reciter)
+        reciter = reciter.replace('-', ' - ').title().replace(' - ', '-')
+        transliterated_surah, arabic_surah = await self.get_surah_info(surah)
         description = f'Playing **Surah {transliterated_surah}** ({arabic_surah}), Ayah {ayah}. ' \
                       f'\nReciter: **{reciter}**.'
 
-        em = self.make_embed("Qurʼān", description, f'Requested by {ctx.message.author}', 0x36393F, f'https://everyayah.com/data/QuranText_jpg/{surah}_{ayah}.jpg')
+        em = self.make_embed("Qurʼān", description, f'Requested by {ctx.message.author}', 0x006400,
+                             f'https://everyayah.com/data/QuranText_jpg/{surah}_{ayah}.jpg')
         await ctx.send(embed=em)
 
     @commands.command(name="qpage")
@@ -344,10 +372,10 @@ class Quran(commands.Cog):
         except:
             await ctx.voice_client.disconnect()
             return await ctx.send("Invalid arguments. Commands: `-qpage <page>:<ayah> <reciter>`."
-                                  "\n\nExample: `-qayah 604 sudais`.")
+                                  "\n\nExample: `-qayah 604 abdul rahman al-sudais`.")
 
         reciter = reciter.lower()
-        readable_reciter = readable_reciters[reciter.lower()]
+        readable_reciter = reciter.replace('-', ' - ').title().replace(' - ', '-')
 
         if reciter not in everyayah_reciters:
             await ctx.voice_client.disconnect()
@@ -371,7 +399,7 @@ class Quran(commands.Cog):
 
         description = f'Playing **Page {page}.**\nReciter: **{readable_reciter}**.'
 
-        em = self.make_embed("Qurʼān", description, f'Requested by {ctx.message.author}', 0x36393F,
+        em = self.make_embed("Qurʼān", description, f'Requested by {ctx.message.author}', 0x006400,
                              f'https://www.searchtruth.org/quran/images2/large/page-{url_page}.jpeg')
         await ctx.send(embed=em)
 
@@ -382,47 +410,75 @@ class Quran(commands.Cog):
         await ctx.send(DISCONNECTED)
 
     @commands.command(name="qlive")
-    async def qlive(self, ctx):
-        player = await YTDLSource.from_url(self.live_url, loop=self.bot.loop, stream=True)
-        ctx.voice_client.play(player)
-
-        await ctx.send("Now playing **Makkah Live** (قناة القرآن الكريم- بث مباشر).")
+    async def qlive(self, ctx, *, link: str = 'makkah'):
+        if link == 'quran radio':
+            player = await YTDLSource.from_url(self.quranradio_url, loop=self.bot.loop, stream=True)
+            ctx.voice_client.play(player)
+            await ctx.send("Now playing **mp3quran.net radio** (الإذاعة العامة - اذاعة متنوعة لمختلف القراء).")
+        elif link == 'makkah':
+            player = await YTDLSource.from_url(self.makkah_url, loop=self.bot.loop, stream=True)
+            ctx.voice_client.play(player)
+            await ctx.send("Now playing **Makkah Live** (قناة القرآن الكريم- بث مباشر).")
 
     @commands.command(name="qvolume")
     async def qvolume(self, ctx, volume: int):
         if not isinstance(volume, int) or not 0 <= volume <= 100:
             await ctx.send(INVALID_VOLUME)
         player = players[ctx.guild.id]
-        player.volume = int
+        player.volume = volume
         await ctx.send(f"Successfully changed volume to {volume}")
+
+    @commands.command(name="qsearch")
+    async def qsearch(self, ctx, search_term: str):
+        reciters = mp3quran_reciters.keys()
+        results = process.extractWithoutOrder(search_term, reciters, score_cutoff=60)
+        formatted_results = ''
+        i = 0
+        for result in results:
+            i += 1
+            formatted_result = result[0].replace('-', ' - ').title().replace(' - ', '-')
+            formatted_results = formatted_results + f'\n{i}. {formatted_result}'
+        if formatted_results == '':
+            await ctx.send('**No results.**')
+        else:
+            em = self.make_embed(title='Search Results', description=formatted_results, colour=0x006400, footer='',
+                                 image=None)
+            await ctx.send(embed=em)
 
     @commands.command(name="reciters")
     async def reciters(self, ctx):
-        main_reciter_list = ''
-        secondary_reciter_list = ''
-        for key in readable_reciters.keys():
-            if key in everyayah_reciters.keys():
-                secondary_reciter_list = secondary_reciter_list + f'{key}, '
-            if key in quranicaudio_reciters.keys():
-                main_reciter_list = main_reciter_list + f'{key}, '
-
-        await ctx.send(f'**`-qplay` Reciter List**\n\n```fix\n{main_reciter_list}```\n\n**`-qayah` and `-qpage` Reciter'
-                       f' List**\n\n```{secondary_reciter_list}```')
+        everyayah_reciter_list = ''
+        for key in everyayah_reciters.keys():
+            everyayah_reciter_list = everyayah_reciter_list + f'{key}, '
+            em = discord.Embed(description='\n\n__**Reciters for `-qplay`**__\n\nAvailable reciters: '
+                                           f'**{len(mp3quran_reciters.keys())}**\n\nTo search reciters, type `-qsearch '
+                                           f'<reciter name>`, e.g. `-qsearch dossary`'
+                                           f' [Full reciter list](https://github.com/galacticwarrior9/QuranBot/blob/mas'
+                                           f'ter/Reciters.md)'
+                                           f'\n\n__**Reciters for `-qayah` and `-qpage`**__'
+                                           f'\n\nAvailable reciters: **{len(everyayah_reciters.keys())}**\n\n'
+                                           f'List: ```{everyayah_reciter_list}```', colour=0x006400, title="Reciters")
+            await ctx.send(embed=em)
 
     @commands.command(name="qhelp")
     async def qhelp(self, ctx):
         em = discord.Embed(title='Help', colour=0x006400)
-        em.add_field(name="-qplay", value="Plays a recitation of a surah.\n\n`-qplay <surah number> <reciter>`"
-                                          "\n\nExample: `-qplay 1 abu bakr al-shatri`", inline=True)
-        em.add_field(name="-qayah", value="Plays a recitation of a single verse.\n\n`-qplay <surah>:<ayah>`"
-                                          "\n\nExample: `-qayah 2:255 hatem farid`", inline=True)
-        em.add_field(name="-qpage", value="Plays a recitation of a page from the mushaf.\n\n`-qpage <page> "
-                                          "<reciter>`\n\nExample: `-qpage 60 sudais`", inline=True)
+        em.add_field(name="-qplay", value="Plays a recitation of a surah.\n\n__Usage__\n\n`-qplay <surah number> <recit"
+                                          "er>`\n\nExample: `-qplay 1 abu bakr al-shatri`", inline=True)
+        em.add_field(name="-qayah", value="Plays a recitation of a single verse.\n\n__Usage__\n\n`-qplay <surah>:<ayah>"
+                                          "`\n\nExample: `-qayah 2:255 hatem farid`", inline=True)
+        em.add_field(name="-qpage", value="Plays a recitation of a page from the mushaf.\n\n__Usage__\n\n`-qpage <page>"
+                                          " <reciter>`\n\nExample: `-qpage 60 abdul rahman al-sudais`", inline=True)
         em.add_field(name="-reciters", value="Shows the list of reciters.", inline=True)
-        em.add_field(name="-qlive", value="Plays a live audio stream from al-Masjid al-Ḥarām in Makkah.", inline=True)
+        em.add_field(name="-qsearch", value="Search the `-qplay` reciter list.\n\n__Usage__\n\n`-qsearch <reciter name>"
+                                            "`\n\nExample: `-qsearch dossary`", inline=True)
+        em.add_field(name="-qlive", value="Plays a live audio stream.\n\n Type `-qlive makkah` for a live audio stream "
+                                          "from al-Masjid al-Ḥarām in Makkah.\n\n Type `-qlive quran radio` for Qur'an "
+                                          "radio.",
+                     inline=True)
         em.add_field(name="-qstop", value="Stops playing.", inline=True)
-        em.add_field(name="-qvolume", value="Changes the audio volume. The volume must be between 1 and "
-                                            "100.\n\n`-qvolume <volume>`\n\nExample: `-qvolume 100`", inline=True)
+        em.add_field(name="-qvolume", value="Changes the audio volume. The volume must be between 1 and 100.",
+                     inline=True)
         em.add_field(name="Information", value="• [GitHub](https://github.com/galacticwarrior9/QuranBot)"
                                                "\n• [Support Server](https://discord.gg/Ud3MHJR)", inline=True)
         await ctx.send(embed=em)
