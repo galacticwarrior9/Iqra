@@ -19,8 +19,7 @@ class Help(commands.Cog):
                                "`-qhelp qplay`\n\n"
                                "• `-qplay` - plays the recitation of a surah, ayah or mushaf page.\n"
                                "• `-qlive` - plays live audio either from Makkah or online Qur'an radio.\n"
-                               "• `-reciters` - lists the reciters that can be used with `-qplay`, `-qayah`"
-                               " and `-qpage`\n"
+                               "• `-reciters` - lists the reciters that can be used with `-qplay`.\n"
                                "• `-qsearch` - search the reciter list for `-qplay`\n"
                                "• `-qstop` - disconnects the bot from voice chat.\n"
                                "• `-qvolume` - changes the volume of the bot.", name='Overview')

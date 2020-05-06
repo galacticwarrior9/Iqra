@@ -281,8 +281,8 @@ class Quran(commands.Cog):
     @qplay.command()
     async def surah(self, ctx, surah: int, *, reciter: str = 'mishary al-afasy'):
         if not isinstance(surah, int):
-            return await ctx.send('Usage: `-qplay <surah number> <reciter>`\nExample: `-qplay 1 abdul rahman al-sudais`'
-                                  '\n\nType `-reciters` for a list of reciters.')
+            return await ctx.send('Usage: `-qplay surah <surah number> <reciter>`\nExample: `-qplay surah 1 abdul '
+                                  'rahman al-sudais`\n\nType `-reciters` for a list of reciters.')
 
         reciter = reciter.lower()
 
@@ -325,8 +325,8 @@ class Quran(commands.Cog):
             ayah = int(ayah)
 
         except:
-            return await ctx.send("Invalid arguments. Commands: `-qayah <surah>:<ayah> <reciter>`."
-                                  "\n\nExample: `-qayah 2:255 abdul rahman al-sudais`.")
+            return await ctx.send("Invalid arguments. Commands: `-qplay ayah <surah>:<ayah> <reciter>`."
+                                  "\n\nExample: `-qplay ayah 2:255 abdul rahman al-sudais`.")
 
         reciter = reciter.lower()
 
@@ -368,7 +368,6 @@ class Quran(commands.Cog):
         try:
             page = int(page)
         except:
-            await ctx.voice_client.disconnect()
             return await ctx.send("Invalid arguments. Commands: `-qpage <page>:<ayah> <reciter>`."
                                   "\n\nExample: `-qayah 604 abdul rahman al-sudais`.")
 
@@ -422,16 +421,17 @@ class Quran(commands.Cog):
 
     @commands.command(name="qvolume")
     async def qvolume(self, ctx, volume: int):
-        if not isinstance(volume, int) or not 0 <= volume <= 100:
-            await ctx.send(INVALID_VOLUME)
-        player = players[ctx.guild.id]
-        player.volume = volume
-        await ctx.send(f"Successfully changed volume to {volume}")
+        if not 0 <= volume <= 100:
+            return await ctx.send(INVALID_VOLUME)
+        if ctx.voice_client is None:
+            return await ctx.send("Not connected to a voice channel.")
+        ctx.voice_client.source.volume = volume / 100
+        await ctx.send(f"Changed volume to **{volume}%**.")
 
     @commands.command(name="qsearch")
     async def qsearch(self, ctx, search_term: str):
         reciters = mp3quran_reciters.keys()
-        results = process.extractWithoutOrder(search_term, reciters, score_cutoff=60)
+        results = process.extractWithoutOrder(search_term, reciters, score_cutoff=65)
         formatted_results = ''
         i = 0
         for result in results:
@@ -469,16 +469,6 @@ class Quran(commands.Cog):
                 await ctx.send("**You are not connected to a voice channel.**")
         elif ctx.voice_client.is_playing():
             await ctx.send("**Already playing**. To stop playing, type `-qstop`.")
-
-    @qvolume.before_invoke
-    async def ensure_volume(self, ctx):
-        if ctx.voice_client is None:
-            if ctx.author.voice:
-                await ctx.send("**Nothing is being played.**")
-            else:
-                await ctx.send("**You are not connected to a voice channel.**")
-        elif not ctx.voice_client.is_playing():
-            await ctx.send("**Nothing is being played.**")
 
     # Leave empty voice channels.
     @commands.Cog.listener()
