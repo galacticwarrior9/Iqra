@@ -19,10 +19,12 @@ This is a simple bot that can play recitations of surahs, ayahs and mushaf pages
 If no reciter is specified, Mishary al-Afasy's recitation will be used. 
 [Click here for the list of **surah** reciters](https://github.com/galacticwarrior9/QuranBot/blob/master/Reciters.md).
 
-**Example 1**: `-qplay surah 1 abu bakr al-shatri`
+**Example 1**: `-qplay surah 1 Shaik Abu Bakr Al Shatri`
+
 This would play Abu Bakr al-Shatri's recitation of Surah al-Fatiha.
 
-**Example 2**: `-qplay surah 112 abdul rahman al-sudais`
+**Example 2**: `-qplay surah 112 Abdulrahman Alsudaes`
+
 This would play Abdul Rahman al-Sudais' recitation of Surah al-Ikhlas. 
 
 #### Playing a single ayah
@@ -32,6 +34,7 @@ This would play Abdul Rahman al-Sudais' recitation of Surah al-Ikhlas.
 If no reciter is specified, Mishary al-Afasy's recitation will be used.
 
 **Example**: `-qayah ayah 2:255 hatem farid`
+
 This would play Hatem Farid's recitation of Surah al-Baqarah, ayah 255.
 
 #### Playing a page from the mushaf
@@ -43,6 +46,7 @@ This would play Hatem Farid's recitation of Surah al-Baqarah, ayah 255.
 If no reciter is specified, Mishary al-Afasy's recitation will be used.
 
 **Example**: `-qplay page 10 hani al-rifai`
+
 This would play Hani al-Rifai's recitation of the 10th page of a standard *mushaf*.
 
 ### -reciters
@@ -55,7 +59,7 @@ Use 	`-qsearch` to search the list of reciters for `-qplay`. For example, `-qsea
 Plays a live audio stream.
 
  - Type `-qlive makkah` for a stream from al-Masjid al-Ḥarām in Makkah.
--    Type `-qlive quran` for Qur'an radio.
+-  Type `-qlive quran` for Qur'an radio.
 
 ### -qvolume
 Changes the volume of the bot. 
@@ -73,5 +77,5 @@ Lists all commands and how to use them.
 ## Sources
 
  - [mp3quran.net](http://mp3quran.net/) for the surah recitations.
- -  [everyayah.com](https://everyayah.com/) for the ayah and page recitations.
+ - [everyayah.com](https://everyayah.com/) for the ayah and page recitations.
  - [haramain.info](http://www.haramain.info/) for the live Makkah audio.
