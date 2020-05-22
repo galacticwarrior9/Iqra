@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-bot = commands.Bot(command_prefix='-')
+bot = commands.Bot(command_prefix='.')
 
 
 @bot.event
@@ -12,7 +12,7 @@ async def on_ready():
 
     bot.remove_command('help')
 
-    cogs = ['quran', 'help']
+    cogs = ['quran', 'help', 'reciters', 'eval']
 
     for cog in cogs:
         bot.load_extension(cog)

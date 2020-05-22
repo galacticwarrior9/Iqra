@@ -30,7 +30,7 @@ class Help(commands.Cog):
             em.set_author(name='-qplay')
             em.add_field(value="**-qplay** plays a surah, ayah or page from the mushaf in a voice channel."
                                , name='Description', inline=False)
-            em.add_field(value="`-qplay surah <surah number> <reciter>`\n\nExample: `-qplay surah 1 raad al-kurdi`"
+            em.add_field(value="`-qplay surah <surah number> <reciter>`\n\nExample: `-qplay surah 1 Mishary Alafasi`"
                                , name='Playing a surah', inline=True)
             em.add_field(value="`-qplay ayah <surah>:<ayah> <reciter>`\n\nExample: `-qplay ayah 1:6 hani al-rifai`"
                                , name='Playing an ayah', inline=True)

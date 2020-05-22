@@ -72,6 +72,6 @@ Lists all commands and how to use them.
 
 ## Sources
 
- - [mp3quran.net](http://mp3quran.net/) for the `-qplay` recitations.
- -  [everyayah.com](https://everyayah.com/) for the `-qpage` and `qayah`  recitations.
+ - [mp3quran.net](http://mp3quran.net/) for the surah recitations.
+ -  [everyayah.com](https://everyayah.com/) for the ayah and page recitations.
  - [haramain.info](http://www.haramain.info/) for the live Makkah audio.
