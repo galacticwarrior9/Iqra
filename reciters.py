@@ -33,7 +33,11 @@ We fetch the list anew every time because the API is frequently updated with new
 async def get_mp3quran_reciters():
     async with aiohttp.ClientSession() as session:
         async with session.get('http://mp3quran.net/api/_english.php') as r:
-            data = await r.json()
+            try:
+                data = await r.json()
+            # If the JSON response is malformed - which occasionally occurs - then we select HTML as the content type.
+            except aiohttp.ContentTypeError:
+                data = await r.json(content_type='text/html')
         raw_reciters = data['reciters']
 
     # Filter out reciters with recitations of < 90 surahs.
