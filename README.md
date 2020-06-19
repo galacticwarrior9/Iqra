@@ -1,9 +1,11 @@
 
 
 
+
 # Iqra
 
 [![Discord](https://img.shields.io/discord/610613297452023837?label=Support%20Server)](https://discord.gg/Ud3MHJR) 
+
 [Invite](https://discordapp.com/oauth2/authorize?client_id=706134327200841870&scope=bot&permissions=1068032)
 
 This is a simple bot that can play recitations of surahs, ayahs and mushaf pages from the Qur'an in voice chat, along with a live audio stream from Makkah. It currently supports 120+ reciters.
@@ -16,10 +18,17 @@ This is a simple bot that can play recitations of surahs, ayahs and mushaf pages
 ```
 -qplay <surah number> <optional reciter>
 ```
+
+**OR**
+```
+-qplay <surah name> <optional reciter>
+```
+
+
 If no reciter is specified, Mishary al-Afasy's recitation will be used. 
 [Click here for the list of **surah** reciters](https://github.com/galacticwarrior9/QuranBot/blob/master/Reciters.md).
 
-**Example 1**: `-qplay surah 1 Shaik Abu Bakr Al Shatri`
+**Example 1**: `-qplay surah al-fatiha Shaik Abu Bakr Al Shatri`
 
 This would play Abu Bakr al-Shatri's recitation of Surah al-Fatiha.
 
@@ -37,7 +46,7 @@ If no reciter is specified, Mishary al-Afasy's recitation will be used.
 
 This would play Hatem Farid's recitation of Surah al-Baqarah, ayah 255.
 
-#### Playing a page from the mushaf
+#### Playing a single page from the mushaf
 
 ```
 -qplay page <page number> <optional reciter>
@@ -50,8 +59,9 @@ If no reciter is specified, Mishary al-Afasy's recitation will be used.
 This would play Hani al-Rifai's recitation of the 10th page of a standard *mushaf*.
 
 ### -reciters
-Gets the list of reciters for `-qplay`.
-[Click here for the list of **surah** reciters.](https://github.com/galacticwarrior9/QuranBot/blob/master/Reciters.md)
+Gets the lists of reciters for `-qplay`.
+
+There are two lists. One is for surah recitations, and the other is for ayah/page recitations. [Click here for the list of **surah** reciters.](https://github.com/galacticwarrior9/QuranBot/blob/master/Reciters.md)
 #### -qsearch
 Use 	`-qsearch` to search the list of reciters for `-qplay`. For example, `-qsearch dossary` would return Ibrahim al-Dossary and Yasser al-Dossary.
 
@@ -76,6 +86,6 @@ Lists all commands and how to use them.
 
 ## Sources
 
- - [mp3quran.net](http://mp3quran.net/) for the surah recitations.
+ - [mp3quran.net](http://mp3quran.net/) for the surah recitations and Qur'an radio.
  - [everyayah.com](https://everyayah.com/) for the ayah and page recitations.
  - [haramain.info](http://www.haramain.info/) for the live Makkah audio.

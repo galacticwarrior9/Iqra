@@ -3,12 +3,14 @@ import asyncio
 import youtube_dl
 import aiohttp
 from discord.ext import commands
+from fuzzywuzzy import process, fuzz
 
 from reciters import everyayah_reciters, get_mp3quran_reciter
 
 RECITATION_NOT_FOUND = "**Could not find a recitation for the surah by this reciter.** Try a different surah."
 RECITER_NOT_FOUND = "**Couldn't find reciter!** Type `-reciters` for a list of available reciters."
-SURAH_NOT_FOUND = "**Sorry, that is not a valid surah.**"
+SURAH_NOT_FOUND = "**Surah not found** Use the surah's name or number. Examples: \n\n`-qplay surah" \
+                  " al-fatihah`\n\n`-qplay surah 1`"
 PAGE_NOT_FOUND = "**Sorry, the page must be between 1 and 604.**"
 DISCONNECTED = "**Successfully disconnected.**"
 INVALID_VOLUME = "**The volume must be between 0 and 100.**"
@@ -41,6 +43,25 @@ ffmpeg_options = {
 
 
 ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
+
+
+async def get_surah_names():
+    async with aiohttp.ClientSession() as session:
+        async with session.get('http://api.quran.com/api/v3/chapters') as r:
+            data = await r.json()
+        surahs = data['chapters']
+
+    surah_names = {}
+    for surah in surahs:
+        surah_names[surah['name_simple'].lower()] = surah['id']
+
+    return surah_names
+
+
+async def get_surah_id_from_name(surah_name):
+    surah_names = await get_surah_names()
+    surah_id = surah_names[surah_name]
+    return surah_id
 
 
 class YTDLSource(discord.PCMVolumeTransformer):
@@ -125,17 +146,29 @@ class Quran(commands.Cog):
     @commands.group()
     async def qplay(self, ctx):
         if ctx.invoked_subcommand is None:
-            await ctx.send('**Invalid arguments**. For help, type `-qhelp qplay`.')
+            return await ctx.send('**Invalid arguments**. For help, type `-qhelp qplay`.')
 
     @qplay.command()
-    async def surah(self, ctx, surah: int, *, reciter: str = 'Mishary Alafasi'):
+    async def surah(self, ctx, surah, *, reciter: str = 'Mishary Alafasi'):
 
         if ctx.voice_client.is_playing():
             return await ctx.send(ALREADY_PLAYING)
 
-        if not isinstance(surah, int):
-            return await ctx.send('Usage: `-qplay surah <surah number> <reciter>`\nExample: `-qplay surah 1 abdul '
-                                  'rahman al-sudais`\n\nType `-reciters` for a list of reciters.')
+        try:
+            surah = int(surah)
+
+        except ValueError:
+            try:
+                surah = await get_surah_id_from_name(surah.lower())
+            # We try to suggest a correction if an invalid surah name string is given.
+            except KeyError:
+                surah_names = await get_surah_names()
+                result = process.extract(surah, surah_names.keys(), scorer=fuzz.partial_ratio, limit=1)
+                if result is not None:
+                    await ctx.send(f'Could not find {surah}, so the closest match - *{result[0][0]}* - will be used.')
+                    surah = await get_surah_id_from_name(result[0][0].lower())
+                else:
+                    return await ctx.send(SURAH_NOT_FOUND)
 
         reciter = await get_mp3quran_reciter(reciter.lower())
 
@@ -149,7 +182,8 @@ class Quran(commands.Cog):
 
         try:
             player = await YTDLSource.from_url(file_url, loop=self.bot.loop, stream=True)
-        except: return await ctx.send(RECITATION_NOT_FOUND)
+        except:
+            return await ctx.send(RECITATION_NOT_FOUND)
 
         players[ctx.guild.id] = player
 
@@ -157,8 +191,7 @@ class Quran(commands.Cog):
             ctx.voice_client.play(player, after=lambda x: asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect()
                                                                                            , self.bot.loop))
         except discord.errors.ClientException as e:
-            print(e)
-            return
+            return print(e)
 
         transliterated_surah, arabic_surah = await self.get_surah_info(surah)
         description = f'Playing **Surah {transliterated_surah}** ({arabic_surah}).\nReciter: **{reciter.name}**.' \
@@ -204,8 +237,7 @@ class Quran(commands.Cog):
             ctx.voice_client.play(player, after=lambda x: asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect()
                                                                                            , self.bot.loop))
         except discord.errors.ClientException as e:
-            print(e)
-            return
+            return print(e)
 
         reciter = reciter.replace('-', ' - ').title().replace(' - ', '-')
         transliterated_surah, arabic_surah = await self.get_surah_info(surah)
@@ -276,18 +308,11 @@ class Quran(commands.Cog):
         link = link.lower()
 
         if link == 'quran radio':
-            await ctx.author.voice.channel.connect()
             player = await YTDLSource.from_url(self.quranradio_url, loop=self.bot.loop, stream=True)
             ctx.voice_client.play(player)
             await ctx.send("Now playing **mp3quran.net radio** (الإذاعة العامة - اذاعة متنوعة لمختلف القراء).")
 
         elif link == 'makkah':
-            try:
-                await ctx.author.voice.channel.connect()
-            except discord.errors.ClientException:
-                voice_client = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
-                await voice_client.disconnect()
-                await ctx.author.voice.channel.connect()
             player = await YTDLSource.from_url(self.makkah_url, loop=self.bot.loop, stream=True)
             ctx.voice_client.play(player)
             await ctx.send("Now playing **Makkah Live** (قناة القرآن الكريم- بث مباشر).")
@@ -309,6 +334,15 @@ class Quran(commands.Cog):
                 await ctx.author.voice.channel.connect()
             else:
                 await ctx.send("You are not connected to a voice channel.")
+
+    # Leave empty voice channels to conserve bandwidth.
+    @commands.Cog.listener()
+    async def on_voice_state_update(self, member, before, after):
+        if after.channel is None:
+            if len(before.channel.members) == 1 and self.bot.user in before.channel.members:
+                voice_client = discord.utils.get(self.bot.voice_clients, guild=before.channel.guild)
+                if voice_client is not None:
+                    await voice_client.disconnect()
 
 
 def setup(bot):

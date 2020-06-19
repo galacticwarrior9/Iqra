@@ -82,9 +82,6 @@ class Reciters(commands.Cog):
         reciter_list = await get_mp3quran_reciters()
         reciters = [reciter.name for reciter in reciter_list]
 
-        for reciter in reciters:
-            print(f'{reciter}')
-
         results = process.extractWithoutOrder(search_term, reciters, score_cutoff=65)
         formatted_results = ''
         i = 0
@@ -104,15 +101,17 @@ class Reciters(commands.Cog):
         for key in everyayah_reciters.keys():
             everyayah_reciter_list = everyayah_reciter_list + f'{key}, '
         mp3quran_reciters = len(await get_mp3quran_reciters())
-        em = discord.Embed(description='\n\n__**Surah Reciters**__\n\nAvailable reciters: '
+        em = discord.Embed(description='\n\n__**`-qplay surah` Reciters**__\n\nAvailable reciters: '
                                        f'**{mp3quran_reciters}\n\n'
-                                       f'[Full surah reciter list](https://github.com/galacticwarrior9/QuranBot/blob/ma'
-                                       f'ster/Reciters.md)'
-                                       f'**\n\nTo search this list, type `-qsearch <reciter name>`, e.g. '
+                                       f'[Click here for the full surah reciter list]'
+                                       f'(https://github.com/galacticwarrior9/QuranBot/blob/master/Reciters.md)**\n\n'
+                                       f'To search this list, type `-qsearch <reciter name>`, e.g. '
                                        f'`-qsearch dossary`\n'
-                                       f'\n\n__**Ayah and Page Reciters**__'
+                                       f'\n\n__**`-qplay ayah` and `-qplay page` Reciters**__'
                                        f'\n\nAvailable reciters: **{len(everyayah_reciters.keys())}**\n\n'
                                        f'List: ```{everyayah_reciter_list}```', colour=0x006400, title="Reciters")
+        em.set_footer(text="Use the ayah/page reciter list when playing individual ayahs and pages. Use the surah recit"
+                           "er list when playing surahs.")
         await ctx.send(embed=em)
 
 

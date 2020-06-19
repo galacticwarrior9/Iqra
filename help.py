@@ -31,12 +31,13 @@ class Help(commands.Cog):
             em.add_field(value="**-qplay** plays a surah, ayah or page from the mushaf in a voice channel."
                                , name='Description', inline=False)
             em.add_field(value="`-qplay surah <surah number> <reciter>`\n\nExample: `-qplay surah 1 Mishary Alafasi`"
-                               , name='Playing a surah', inline=True)
+                               "\n\n__**OR**__ `-qplay surah <surah name> <reciter>`\n\nExample: `-qplay surah al-fatiha"
+                               " Mishary Alafasi`", name='Playing a surah', inline=True)
             em.add_field(value="`-qplay ayah <surah>:<ayah> <reciter>`\n\nExample: `-qplay ayah 1:6 hani al-rifai`"
                                , name='Playing an ayah', inline=True)
-            em.add_field(value="`-qplay page <page number> <reciter>`\n\nExample: `-qplay page 342 mishary al-afasy`"
+            em.add_field(value="`-qplay page <page number> <reciter>`\n\nExample: `-qplay page 342 hani al-rifai`"
                                , name='Playing a page from the mushaf', inline=True)
-            em.add_field(value="Type `-reciters` for a list of reciters.", name='Reciters', inline=True)
+            em.add_field(value="Type `-reciters` for a list of reciters.", name='Reciters', inline=False)
 
         if command == "qvolume":
             em.set_author(name='-qvolume')
