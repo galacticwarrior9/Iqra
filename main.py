@@ -3,6 +3,12 @@ from discord.ext import commands
 
 bot = commands.Bot(command_prefix='-')
 
+cogs = ['quran', 'help', 'reciters']
+
+for cog in cogs:
+    bot.load_extension(cog)
+
+bot.remove_command('help')
 
 @bot.event
 async def on_ready():
@@ -10,12 +16,6 @@ async def on_ready():
     presence = discord.Game("-qhelp")
     await bot.change_presence(activity=presence)
 
-    bot.remove_command('help')
-
-    cogs = ['quran', 'help', 'reciters']
-
-    for cog in cogs:
-        bot.load_extension(cog)
 
 token = open("token.txt", "r").read()
 bot.run(token.strip())
