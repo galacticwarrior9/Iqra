@@ -3,24 +3,24 @@ import asyncio
 import youtube_dl
 import aiohttp
 from discord.ext import commands
+from discord.ext.commands import MissingRequiredArgument
 from fuzzywuzzy import process, fuzz
+from reciters import get_surah_reciter, get_ayah_reciter, everyayah_reciters
 
-from reciters import everyayah_reciters, get_mp3quran_reciter
-
-RECITATION_NOT_FOUND = "**Could not find a recitation for the surah by this reciter.** Try a different surah."
-RECITER_NOT_FOUND = "**Couldn't find reciter!** Type `-reciters` for a list of available reciters."
-SURAH_NOT_FOUND = "**Surah not found** Use the surah's name or number. Examples: \n\n`-qplay surah" \
+RECITATION_NOT_FOUND = ":x: **Could not find a recitation for the surah by this reciter.** Try a different surah."
+RECITER_NOT_FOUND = ":x: **Couldn't find reciter!** Type `-reciters` for a list of available reciters."
+SURAH_NOT_FOUND = ":x: **Surah not found.** Use the surah's name or number. Examples: \n\n`-qplay surah" \
                   " al-fatihah`\n\n`-qplay surah 1`"
-PAGE_NOT_FOUND = "**Sorry, the page must be between 1 and 604.**"
-DISCONNECTED = "**Successfully disconnected.**"
-INVALID_VOLUME = "**The volume must be between 0 and 100.**"
-INVALID_VERSE = "**Please provide a verse.** For example, 1:2 is Surah al-Fatiha, ayah 2."
-NON_EXISTENT_VERSE = "**There are only {} verses in this surah.**"
-ALREADY_PLAYING = "**Already playing**. To stop playing, type `-qstop`."
-NOT_PLAYING = "The bot is not playing."
-
-players = {}
-
+PAGE_NOT_FOUND = ":x: **Sorry, the page must be between 1 and 604.**"
+DISCONNECTED = ":white_check_mark: **Successfully disconnected.**"
+INVALID_VOLUME = ":x: **The volume must be between 0 and 100.**"
+INVALID_VERSE = ":x: **Please provide a verse.** For example, 1:2 is Surah al-Fatiha, ayah 2."
+NON_EXISTENT_VERSE = ":x: **There are only {} verses in this surah.**"
+ALREADY_PLAYING = ":x: **Already playing**. To stop playing, type `-qstop`."
+NOT_PLAYING = ":x: The bot is not playing."
+RESUMED = ":arrow_forward: **Resumed**."
+PAUSED = ":pause_button: **Paused**."
+NO_PRIVATE_MESSAGES = "Sorry, the bot cannot be used in DMs."
 
 ytdl_format_options = {
     'format': 'bestaudio/best',
@@ -40,7 +40,6 @@ ytdl_format_options = {
 ffmpeg_options = {
     'options': '-vn'
 }
-
 
 ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
 
@@ -74,17 +73,15 @@ class YTDLSource(discord.PCMVolumeTransformer):
     @classmethod
     async def from_url(cls, url, *, loop=None, stream=False):
         loop = loop or asyncio.get_event_loop()
-
         data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
-
         filename = data['url'] if stream else ytdl.prepare_filename(data)
-
         return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
 
 
 class Quran(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.voice_states = {}
         self.session = aiohttp.ClientSession(loop=bot.loop)
         self.info_url = 'http://api.quran.com:3000/api/v3/chapters/{}'
         self.reciter_info_url = 'http://mp3quran.net/api/_english.php'
@@ -94,21 +91,15 @@ class Quran(commands.Cog):
         self.ayah_url = 'https://everyayah.com/data/{}/{}.mp3'
         self.mushaf_url = 'https://www.searchtruth.org/quran/images1/{}.jpg'
 
-    def make_ayah_url(self, surah, ayah, reciter):
-        url_surah = str(surah).zfill(3)
-        url_ayah = str(ayah).zfill(3)
-
-        try: url_reciter = everyayah_reciters[reciter]
-        except KeyError: return None
-
-        url_ref = f'{url_surah}{url_ayah}'
-        url = self.ayah_url.format(url_reciter, url_ref)
-
-        return url
+    async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError):
+        await ctx.send(':x: **Error**: *{}*'.format(str(error)))
+        print(error)
 
     def make_page_url(self, page, reciter):
-        try: url_reciter = everyayah_reciters[reciter]
-        except KeyError: return None
+        try:
+            url_reciter = everyayah_reciters[reciter]
+        except KeyError:
+            return None
 
         url_page = str(page).zfill(3)
         url = self.page_url.format(url_reciter, url_page)
@@ -124,9 +115,15 @@ class Quran(commands.Cog):
         return name, arabic_name
 
     @staticmethod
-    def get_qplay_file(url, surah):
+    def get_surah_file(url, surah):
         file_name = str(surah).zfill(3) + '.mp3'
         file_url = f'{url}/{file_name}'
+        return file_url
+
+    @staticmethod
+    def get_ayah_file(reciter, surah, ayah):
+        file_name = str(surah).zfill(3) + str(ayah).zfill(3) + '.mp3'
+        file_url = f'{reciter.ayah_url}/{file_name}'
         return file_url
 
     async def get_verse_count(self, surah):
@@ -143,16 +140,27 @@ class Quran(commands.Cog):
             em.set_image(url=image)
         return em
 
+    async def create_player(self, ctx, url):
+        try:
+            player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
+        except:
+            return await ctx.send(RECITATION_NOT_FOUND)
+
+        self.voice_states[ctx.guild.id] = player
+
+        try:
+            ctx.voice_client.play(player, after=lambda x: asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect()
+                                                                                           , self.bot.loop))
+        except discord.errors.ClientException as e:
+            return print(e)
+
     @commands.group()
     async def qplay(self, ctx):
         if ctx.invoked_subcommand is None:
-            return await ctx.send('**Invalid arguments**. For help, type `-qhelp qplay`.')
+            await ctx.send('**Invalid arguments**. For help, type `-qhelp qplay`.')
 
     @qplay.command()
     async def surah(self, ctx, surah, *, reciter: str = 'Mishary Alafasi'):
-
-        if ctx.voice_client.is_playing():
-            return await ctx.send(ALREADY_PLAYING)
 
         try:
             surah = int(surah)
@@ -168,9 +176,9 @@ class Quran(commands.Cog):
                     await ctx.send(f'Could not find {surah}, so the closest match - *{result[0][0]}* - will be used.')
                     surah = await get_surah_id_from_name(result[0][0].lower())
                 else:
-                    return await ctx.send(SURAH_NOT_FOUND)
+                    raise commands.CommandError(SURAH_NOT_FOUND)
 
-        reciter = await get_mp3quran_reciter(reciter.lower())
+        reciter = await get_surah_reciter(reciter.lower())
 
         if reciter is None:
             return await ctx.send(RECITER_NOT_FOUND)
@@ -178,33 +186,19 @@ class Quran(commands.Cog):
         if not 0 < surah <= 114:
             return await ctx.send(SURAH_NOT_FOUND)
 
-        file_url = self.get_qplay_file(reciter.server, surah)
+        file_url = self.get_surah_file(reciter.server, surah)
 
-        try:
-            player = await YTDLSource.from_url(file_url, loop=self.bot.loop, stream=True)
-        except:
-            return await ctx.send(RECITATION_NOT_FOUND)
-
-        players[ctx.guild.id] = player
-
-        try:
-            ctx.voice_client.play(player, after=lambda x: asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect()
-                                                                                           , self.bot.loop))
-        except discord.errors.ClientException as e:
-            return print(e)
+        await self.create_player(ctx, file_url)
 
         transliterated_surah, arabic_surah = await self.get_surah_info(surah)
-        description = f'Playing **Surah {transliterated_surah}** ({arabic_surah}).\nReciter: **{reciter.name}**.' \
-                      f'\nRiwayah: {reciter.riwayah}'
+        description = f'**Playing**: Surah {transliterated_surah} ({arabic_surah}).\n**Reciter:** {reciter.name}.' \
+                      f'\n**Riwayah**: *{reciter.riwayah}*'
 
         em = self.make_embed("Qurʼān", description, f'Requested by {ctx.message.author}', 0x006400)
         await ctx.send(embed=em)
 
     @qplay.command()
-    async def ayah(self, ctx, ref: str, *, reciter: str = 'mishary al-afasy'):
-
-        if ctx.voice_client.is_playing():
-            return await ctx.send(ALREADY_PLAYING)
+    async def ayah(self, ctx, ref: str, *, reciter: str = 'Mishary Alafasi'):
 
         try:
             surah, ayah = ref.split(':')
@@ -215,9 +209,9 @@ class Quran(commands.Cog):
             return await ctx.send("Invalid arguments. Commands: `-qplay ayah <surah>:<ayah> <reciter>`."
                                   "\n\nExample: `-qplay ayah 2:255 abdul rahman al-sudais`.")
 
-        reciter = reciter.lower()
+        reciter = await get_ayah_reciter(reciter.lower())
 
-        if reciter not in everyayah_reciters:
+        if reciter is None:
             return await ctx.send(RECITER_NOT_FOUND)
 
         if not 0 < surah <= 114:
@@ -227,22 +221,13 @@ class Quran(commands.Cog):
         if ayah > verse_count:
             return await ctx.send(NON_EXISTENT_VERSE.format(verse_count))
 
-        url = self.make_ayah_url(surah, ayah, reciter)
-        try: player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
-        except:
-            return await ctx.send(RECITATION_NOT_FOUND)
+        url = self.get_ayah_file(reciter, surah, ayah)
 
-        players[ctx.guild.id] = player
-        try:
-            ctx.voice_client.play(player, after=lambda x: asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect()
-                                                                                           , self.bot.loop))
-        except discord.errors.ClientException as e:
-            return print(e)
+        await self.create_player(ctx, url)
 
-        reciter = reciter.replace('-', ' - ').title().replace(' - ', '-')
         transliterated_surah, arabic_surah = await self.get_surah_info(surah)
-        description = f'Playing **Surah {transliterated_surah}** ({arabic_surah}), Ayah {ayah}. ' \
-                      f'\nReciter: **{reciter}**.'
+        description = f'**Playing**: Surah {transliterated_surah} ({arabic_surah}), Ayah {ayah}. ' \
+                      f'\n**Reciter**: {reciter.name} *({reciter.mushaf_type})*\n**Riwayah**: *{reciter.riwayah}*'
 
         em = self.make_embed("Qurʼān", description, f'Requested by {ctx.message.author}', 0x006400,
                              f'https://everyayah.com/data/QuranText_jpg/{surah}_{ayah}.jpg')
@@ -250,9 +235,6 @@ class Quran(commands.Cog):
 
     @qplay.command()
     async def page(self, ctx, page: int, *, reciter: str = 'mishary al-afasy'):
-
-        if ctx.voice_client.is_playing():
-            return await ctx.send(ALREADY_PLAYING)
 
         try:
             page = int(page)
@@ -271,24 +253,20 @@ class Quran(commands.Cog):
 
         url, url_page = self.make_page_url(page, reciter)
 
-        try:
-            player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
-        except:
-            return await ctx.send(RECITATION_NOT_FOUND)
+        await self.create_player(ctx, url)
 
-        players[ctx.guild.id] = player
-        try:
-            ctx.voice_client.play(player, after=lambda x: asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect()
-                                                                                           , self.bot.loop))
-        except discord.errors.ClientException as e:
-            print(e)
-            return
-
-        description = f'Playing **Page {page}.**\nReciter: **{readable_reciter}**.'
+        description = f'**Playing**: Page {page}.\n**Reciter**: {readable_reciter}.'
 
         em = self.make_embed("Qurʼān", description, f'Requested by {ctx.message.author}', 0x006400,
                              f'https://www.searchtruth.org/quran/images2/large/page-{url_page}.jpeg')
         await ctx.send(embed=em)
+
+    @surah.error
+    @ayah.error
+    @page.error
+    async def error_handler(self, ctx, error):
+        if isinstance(error, MissingRequiredArgument):
+            await ctx.send("You typed the command wrongly. Type `-qhelp qplay` for help.")
 
     @commands.command()
     async def qstop(self, ctx):
@@ -298,6 +276,20 @@ class Quran(commands.Cog):
             await ctx.send(DISCONNECTED)
         else:
             await ctx.send(NOT_PLAYING)
+
+    @commands.command()
+    async def qpause(self, ctx):
+        voice_client = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
+        if voice_client is not None and voice_client.is_playing():
+            voice_client.pause()
+            await ctx.send(PAUSED)
+
+    @commands.command()
+    async def qresume(self, ctx):
+        voice_client = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
+        if voice_client is not None and voice_client.is_paused():
+            voice_client.resume()
+            await ctx.send(RESUMED)
 
     @commands.command()
     async def qlive(self, ctx, *, link: str = 'makkah'):
@@ -326,18 +318,27 @@ class Quran(commands.Cog):
         ctx.voice_client.source.volume = volume / 100
         await ctx.send(f"Changed volume to **{volume}%**.")
 
-    @qplay.before_invoke
+    @ayah.before_invoke
+    @surah.before_invoke
+    @page.before_invoke
     @qlive.before_invoke
     async def join_voice(self, ctx):
-        if ctx.voice_client is None:
-            if ctx.author.voice:
-                await ctx.author.voice.channel.connect()
+
+        if not ctx.author.voice or not ctx.author.voice.channel:
+            raise commands.CommandError('You are not connected to any voice channel.')
+
+        elif ctx.voice_client:
+            if ctx.voice_client.channel != ctx.author.voice.channel:
+                raise commands.CommandError('Bot is already in a voice channel.')
             else:
-                await ctx.send("You are not connected to a voice channel.")
+                raise commands.CommandError('Bot is already playing.')
+
+        else:
+            await ctx.author.voice.channel.connect()
 
     # Leave empty voice channels to conserve bandwidth.
     @commands.Cog.listener()
-    async def on_voice_state_update(self, member, before, after):
+    async def on_voice_state_update(self, _, before, after):
         if after.channel is None:
             if len(before.channel.members) == 1 and self.bot.user in before.channel.members:
                 voice_client = discord.utils.get(self.bot.voice_clients, guild=before.channel.guild)

@@ -1,5 +1,7 @@
 import aiohttp
+import asyncio
 import discord
+import math
 from discord.ext import commands
 from fuzzywuzzy import process
 
@@ -24,21 +26,28 @@ everyayah_reciters = {
 }
 
 
-'''
-Creates a list of reciter objects using mp3quran.net's API.
-We fetch the list anew every time because the API is frequently updated with new reciters and information.
-'''
-
-
-async def get_mp3quran_reciters():
+async def get_reciter_data(for_type: str = 'surah'):
+    if for_type == 'ayah':
+        url = 'https://api.mp3quran.net/verse/verse_en.json'
+    else:
+        url = 'http://mp3quran.net/api/_english.php'
     async with aiohttp.ClientSession() as session:
-        async with session.get('http://mp3quran.net/api/_english.php') as r:
+        async with session.get(url) as r:
             try:
                 data = await r.json()
             # If the JSON response is malformed - which occasionally occurs - then we select HTML as the content type.
             except aiohttp.ContentTypeError:
                 data = await r.json(content_type='text/html')
-        raw_reciters = data['reciters']
+    return data
+
+
+async def get_surah_reciters():
+    """
+    Creates a list of reciter objects using mp3quran.net's API.
+    We fetch the list anew every time because the API is occasionally updated with new reciters and information.
+    """
+    data = await get_reciter_data()
+    raw_reciters = data['reciters']
 
     # Filter out reciters with recitations of < 90 surahs.
     raw_reciters = [reciter for reciter in raw_reciters if int(reciter['count']) >= 90]
@@ -49,13 +58,58 @@ async def get_mp3quran_reciters():
         name = reciter['name']
         riwayah = reciter['rewaya']
         server = reciter['Server']
-        reciters.append(Reciter(name, riwayah, server))
+
+        # Avoid duplicate names by renaming reciters to reflect differences in riwayat
+        for test_obj in reciters:
+            if name == test_obj.name:
+                name = f'{name} - {riwayah}'
+
+        reciter_obj = Reciter(name, riwayah)
+        reciter_obj.server = server
+
+        reciters.append(reciter_obj)
 
     return reciters
 
 
-async def get_mp3quran_reciter(name):
-    reciter_list = await get_mp3quran_reciters()
+async def get_surah_reciter(name):
+    reciter_list = await get_surah_reciters()
+    for reciter in reciter_list:
+        if reciter.name.lower() == name:
+            return reciter
+    return None
+
+
+async def get_ayah_reciters():
+    data = await get_reciter_data('ayah')
+    raw_reciters = data['reciters_verse']
+
+    # Only get reciters whose recitations are available in 128kbps.
+    raw_reciters = [reciter for reciter in raw_reciters if reciter['audio_url_bit_rate_128'] != '']
+
+    # Create reciter object from each reciter and add it to the reciters list
+    reciters = []
+    for reciter in raw_reciters:
+        name = reciter['name']
+        riwayah = reciter['rewaya']
+        mushaf_type = reciter['musshaf_type']
+        ayah_url = reciter['audio_url_bit_rate_128']
+
+        # Avoid duplicate names by renaming reciters to reflect differences in recitation style
+        for test_obj in reciters:
+            if name == test_obj.name:
+                name = f'{name} - {mushaf_type}'
+
+        reciter_obj = Reciter(name, riwayah)
+        reciter_obj.mushaf_type = mushaf_type
+        reciter_obj.ayah_url = ayah_url
+        reciters.append(reciter_obj)
+
+    return reciters
+
+
+async def get_ayah_reciter(name):
+    reciter_list = await get_ayah_reciters()
     for reciter in reciter_list:
         if reciter.name.lower() == name:
             return reciter
@@ -63,23 +117,27 @@ async def get_mp3quran_reciter(name):
 
 
 class Reciter:
-    def __init__(self, name, riwayah, server):
+    def __init__(self, name, riwayah):
         self.name = name
         self.riwayah = riwayah
-        self.server = server
+
+
+class Page:
+    def __init__(self, num, reciters):
+        self.name = num
+        self.reciters = reciters
 
 
 class Reciters(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.session = aiohttp.ClientSession(loop=bot.loop)
 
-    '''
-    Use fuzzy search to allow users to search the mp3quran.net reciter list.
-    '''
     @commands.command()
     async def qsearch(self, ctx, search_term: str):
-        reciter_list = await get_mp3quran_reciters()
+        """
+        Use fuzzy search to allow users to search the mp3quran.net reciter list.
+        """
+        reciter_list = await get_surah_reciters()
         reciters = [reciter.name for reciter in reciter_list]
 
         results = process.extractWithoutOrder(search_term, reciters, score_cutoff=65)
@@ -95,24 +153,93 @@ class Reciters(commands.Cog):
             em = discord.Embed(title='Search Results', colour=0x006400, description=formatted_results)
             await ctx.send(embed=em)
 
-    @commands.command(name='reciters')
+    @commands.group()
     async def reciters(self, ctx):
-        everyayah_reciter_list = ''
-        for key in everyayah_reciters.keys():
-            everyayah_reciter_list = everyayah_reciter_list + f'{key}, '
-        mp3quran_reciters = len(await get_mp3quran_reciters())
-        em = discord.Embed(description='\n\n__**`-qplay surah` Reciters**__\n\nAvailable reciters: '
-                                       f'**{mp3quran_reciters}\n\n'
-                                       f'[Click here for the full surah reciter list]'
-                                       f'(https://github.com/galacticwarrior9/QuranBot/blob/master/Reciters.md)**\n\n'
-                                       f'To search this list, type `-qsearch <reciter name>`, e.g. '
-                                       f'`-qsearch dossary`\n'
-                                       f'\n\n__**`-qplay ayah` and `-qplay page` Reciters**__'
-                                       f'\n\nAvailable reciters: **{len(everyayah_reciters.keys())}**\n\n'
-                                       f'List: ```{everyayah_reciter_list}```', colour=0x006400, title="Reciters")
-        em.set_footer(text="Use the ayah/page reciter list when playing individual ayahs and pages. Use the surah recit"
-                           "er list when playing surahs.")
-        await ctx.send(embed=em)
+        if ctx.invoked_subcommand is None:
+            embed = discord.Embed(title="Reciters", color=0x006400)
+            embed.description = "Please specify a reciter list: *surah*, *ayah* or *page*.\n\n**Example**: `-reciters" \
+                                " surah`"
+            await ctx.send(embed=embed)
+
+    @reciters.command()
+    async def ayah(self, ctx):
+        reciter_list = await get_ayah_reciters()
+        await self.create_reciters_message(ctx, reciter_list)
+
+    @reciters.command()
+    async def surah(self, ctx):
+        reciter_list = await get_surah_reciters()
+        await self.create_reciters_message(ctx, reciter_list)
+
+    @reciters.command()
+    async def page(self, ctx):
+        reciter_list = list(everyayah_reciters.keys())
+        await self.create_reciters_message(ctx, reciter_list)
+
+    @staticmethod
+    def list_reciters(page):
+        lst = ''
+        for reciter in page.reciters:
+            try:
+                lst = lst + f'• {reciter.name}\n'
+            except AttributeError:  # For -reciters page
+                lst = lst + f'• {reciter.title()}\n'
+        return lst
+
+    async def create_reciters_message(self, ctx, reciter_list):
+        num_pages = int(math.ceil(len(reciter_list) / 10))
+        pages = []
+        i = 0
+        for page_num in range(0, num_pages):
+            reciters = reciter_list[i:i + 10]
+            page = Page(page_num, reciters)
+            pages.append(page)
+            i += 10
+
+        page_num = 1
+        page = pages[page_num - 1]
+        lst = self.list_reciters(page)
+
+        embed = discord.Embed(title="Reciters", color=0x006400, description=lst)
+        embed.set_footer(text=f'Page 1/{len(pages)}')
+
+        msg = await ctx.send(embed=embed)
+        await msg.add_reaction(emoji='⬅')
+        await msg.add_reaction(emoji='➡')
+
+        while True:
+            try:
+                reaction, user = await self.bot.wait_for("reaction_add", timeout=120, check=lambda reaction, user:
+                (reaction.emoji == '➡' or reaction.emoji == '⬅')
+                and user != self.bot.user
+                and reaction.message.id == msg.id)
+
+            except asyncio.TimeoutError:
+                await msg.remove_reaction(emoji='➡', member=self.bot.user)
+                await msg.remove_reaction(emoji='⬅', member=self.bot.user)
+                break
+
+            if reaction.emoji == '➡':
+                page_num += 1
+                if page_num > num_pages:
+                    page_num = 1
+                page = pages[page_num - 1]
+
+            if reaction.emoji == '⬅':
+                page_num -= 1
+                if page_num < 1:
+                    page_num = num_pages
+                page = pages[page_num - 1]
+
+            lst = self.list_reciters(page)
+            embed = discord.Embed(title="Reciters", color=0x006400, description=lst)
+            embed.set_footer(text=f'Page {page_num}/{num_pages}')
+            await msg.edit(embed=embed)
+
+            try:
+                await msg.remove_reaction(reaction.emoji, user)
+            except discord.ext.commands.errors.CommandInvokeError:
+                pass
 
 
 def setup(bot):

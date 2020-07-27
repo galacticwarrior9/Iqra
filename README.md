@@ -1,12 +1,8 @@
-
-
-
-
 # Iqra
 
 [![Discord](https://img.shields.io/discord/610613297452023837?label=Support%20Server)](https://discord.gg/Ud3MHJR) 
 
-[Invite](https://discordapp.com/oauth2/authorize?client_id=706134327200841870&scope=bot&permissions=1068032)
+[Invite](https://discordapp.com/oauth2/authorize?client_id=706134327200841870&scope=bot&permissions=1075264)
 
 This is a simple bot that can play recitations of surahs, ayahs and mushaf pages from the Qur'an in voice chat, along with a live audio stream from Makkah. It currently supports 120+ reciters.
 
@@ -42,9 +38,9 @@ This would play Abdul Rahman al-Sudais' recitation of Surah al-Ikhlas.
 ```
 If no reciter is specified, Mishary al-Afasy's recitation will be used.
 
-**Example**: `-qayah ayah 2:255 hatem farid`
+**Example**: `-qayah ayah 2:255 Shaik Abu Bakr Al Shatri`
 
-This would play Hatem Farid's recitation of Surah al-Baqarah, ayah 255.
+This would play Abu Bakr al-Shatri's recitation of Surah al-Baqarah, ayah 255.
 
 #### Playing a single page from the mushaf
 
@@ -61,7 +57,6 @@ This would play Hani al-Rifai's recitation of the 10th page of a standard *musha
 ### -reciters
 Gets the lists of reciters for `-qplay`.
 
-There are two lists. One is for surah recitations, and the other is for ayah/page recitations. [Click here for the list of **surah** reciters.](https://github.com/galacticwarrior9/QuranBot/blob/master/Reciters.md)
 #### -qsearch
 Use 	`-qsearch` to search the list of reciters for `-qplay`. For example, `-qsearch dossary` would return Ibrahim al-Dossary and Yasser al-Dossary.
 
@@ -72,11 +67,18 @@ Plays a live audio stream.
 -  Type `-qlive quran` for Qur'an radio.
 
 ### -qvolume
-Changes the volume of the bot. 
+Changes the volume of the recitation. 
 ```
 -qvolume <volume>
 ```
 `<volume>` must be a number between 0 and 100, e.g. `-qvolume 50`.
+
+
+### -qpause
+Pauses the recitation.
+
+### -qresume
+Resumes the recitation.
 
 ### -qstop
 Disconnects the bot from voice chat.
@@ -86,6 +88,6 @@ Lists all commands and how to use them.
 
 ## Sources
 
- - [mp3quran.net](http://mp3quran.net/) for the surah recitations and Qur'an radio.
- - [everyayah.com](https://everyayah.com/) for the ayah and page recitations.
+ - [mp3quran.net](http://mp3quran.net/) for the surah recitations, ayah recitations and Qur'an radio.
+ - [everyayah.com](https://everyayah.com/) for the page recitations.
  - [haramain.info](http://www.haramain.info/) for the live Makkah audio.

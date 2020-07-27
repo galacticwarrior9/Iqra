@@ -10,6 +10,7 @@ for cog in cogs:
 
 bot.remove_command('help')
 
+
 @bot.event
 async def on_ready():
     print(f"Logged in on {len(bot.guilds)} servers.")
