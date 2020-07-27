@@ -22,6 +22,8 @@ class Help(commands.Cog):
                                "• `-reciters` - lists the reciters that can be used with `-qplay`.\n"
                                "• `-qsearch` - search the reciter list for `-qplay`\n"
                                "• `-qstop` - disconnects the bot from voice chat.\n"
+                               "• `-qpause` - pauses the bot.\n"
+                               "• `-qresume` - resumes the bot.\n"
                                "• `-qvolume` - changes the volume of the bot.", name='Overview')
             em.add_field(name="Links", value="• [GitHub](https://github.com/galacticwarrior9/QuranBot)\n"
                                              "• [Support Server](https://discord.gg/Ud3MHJR)", inline=False)
@@ -64,6 +66,14 @@ class Help(commands.Cog):
         if command == "qstop":
             em.set_author(name='-qstop')
             em.add_field(value="**-qstop** disconnects the bot from voice chat.", name='Description', inline=True)
+
+        if command == "qresume":
+            em.set_author(name='-qresume')
+            em.add_field(value="**-qresume** resumes the bot if it is paused.", name='Description', inline=True)
+
+        if command == "qpause":
+            em.set_author(name='-qpause')
+            em.add_field(value="**-qpause** pauses the bot if it is playing.", name='Description', inline=True)
 
         await ctx.send(embed=em)
 
