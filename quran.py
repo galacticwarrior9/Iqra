@@ -324,17 +324,7 @@ class Quran(commands.Cog):
     @qlive.before_invoke
     async def join_voice(self, ctx):
 
-        if not ctx.author.voice or not ctx.author.voice.channel:
-            raise commands.CommandError('You are not connected to any voice channel.')
-
-        elif ctx.voice_client:
-            if ctx.voice_client.channel != ctx.author.voice.channel:
-                raise commands.CommandError('Bot is already in a voice channel.')
-            else:
-                raise commands.CommandError('Bot is already playing.')
-
-        else:
-            await ctx.author.voice.channel.connect()
+        await ctx.author.voice.channel.connect()
 
     # Leave empty voice channels to conserve bandwidth.
     @commands.Cog.listener()
