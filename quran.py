@@ -83,7 +83,7 @@ class Quran(commands.Cog):
         self.bot = bot
         self.voice_states = {}
         self.session = aiohttp.ClientSession(loop=bot.loop)
-        self.info_url = 'http://api.quran.com:3000/api/v3/chapters/{}'
+        self.info_url = 'http://api.quran.com/api/v3/chapters/{}'
         self.reciter_info_url = 'http://mp3quran.net/api/_english.php'
         self.makkah_url = 'http://66.226.10.51:8000/SaudiTVArabic?dl=1'
         self.quranradio_url = 'http://live.mp3quran.net:8006/stream?type=http&nocache=29554'
@@ -324,7 +324,17 @@ class Quran(commands.Cog):
     @qlive.before_invoke
     async def join_voice(self, ctx):
 
-        await ctx.author.voice.channel.connect()
+        if not ctx.author.voice or not ctx.author.voice.channel:
+            raise commands.CommandError('You are not connected to any voice channel.')
+
+        elif ctx.voice_client:
+            if ctx.voice_client.channel != ctx.author.voice.channel:
+                raise commands.CommandError('Bot is already in a voice channel.')
+            else:
+                raise commands.CommandError('Bot is already playing.')
+
+        else:
+            await ctx.author.voice.channel.connect()
 
     # Leave empty voice channels to conserve bandwidth.
     @commands.Cog.listener()
