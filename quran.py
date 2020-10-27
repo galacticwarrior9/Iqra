@@ -85,8 +85,7 @@ class Quran(commands.Cog):
         self.session = aiohttp.ClientSession(loop=bot.loop)
         self.info_url = 'http://api.quran.com/api/v3/chapters/{}'
         self.reciter_info_url = 'http://mp3quran.net/api/_english.php'
-        self.makkah_url = 'http://66.226.10.51:8000/SaudiTVArabic?dl=1'
-        self.quranradio_url = 'http://live.mp3quran.net:8006/stream?type=http&nocache=29554'
+        self.radio_url_1 = 'https://Qurango.net/radio/tarateel'
         self.page_url = 'https://everyayah.com/data/{}/PageMp3s/Page{}.mp3'
         self.ayah_url = 'https://everyayah.com/data/{}/{}.mp3'
         self.mushaf_url = 'https://www.searchtruth.org/quran/images1/{}.jpg'
@@ -173,7 +172,7 @@ class Quran(commands.Cog):
                 surah_names = await get_surah_names()
                 result = process.extract(surah, surah_names.keys(), scorer=fuzz.partial_ratio, limit=1)
                 if result is not None:
-                    await ctx.send(f'Could not find {surah}, so the closest match - *{result[0][0]}* - will be used.')
+                    await ctx.send(f'Closest match: *{result[0][0]}*')
                     surah = await get_surah_id_from_name(result[0][0].lower())
                 else:
                     raise commands.CommandError(SURAH_NOT_FOUND)
@@ -292,22 +291,14 @@ class Quran(commands.Cog):
             await ctx.send(RESUMED)
 
     @commands.command()
-    async def qlive(self, ctx, *, link: str = 'makkah'):
-
-        if ctx.voice_client.is_playing():
-            return await ctx.send(ALREADY_PLAYING)
+    async def qlive(self, ctx, *, link: str = 'short recitations'):
 
         link = link.lower()
 
-        if link == 'quran radio':
-            player = await YTDLSource.from_url(self.quranradio_url, loop=self.bot.loop, stream=True)
+        if link == 'short recitations':
+            player = await YTDLSource.from_url(self.radio_url_1, loop=self.bot.loop, stream=True)
             ctx.voice_client.play(player)
-            await ctx.send("Now playing **mp3quran.net radio** (الإذاعة العامة - اذاعة متنوعة لمختلف القراء).")
-
-        elif link == 'makkah':
-            player = await YTDLSource.from_url(self.makkah_url, loop=self.bot.loop, stream=True)
-            ctx.voice_client.play(player)
-            await ctx.send("Now playing **Makkah Live** (قناة القرآن الكريم- بث مباشر).")
+            await ctx.send("Now playing **mp3quran.net radio**: *short recitations* (الإذاعة العامة - اذاعة متنوعة لمختلف القراء).")
 
     @commands.command(name="qvolume")
     async def qvolume(self, ctx, volume: int):
@@ -330,7 +321,7 @@ class Quran(commands.Cog):
         elif ctx.voice_client:
             if ctx.voice_client.channel != ctx.author.voice.channel:
                 raise commands.CommandError('Bot is already in a voice channel.')
-            else:
+            elif ctx.voice_client.is_playing():
                 raise commands.CommandError('Bot is already playing.')
 
         else:

@@ -61,10 +61,9 @@ Gets the lists of reciters for `-qplay`.
 Use 	`-qsearch` to search the list of reciters for `-qplay`. For example, `-qsearch dossary` would return Ibrahim al-Dossary and Yasser al-Dossary.
 
 ### -qlive
-Plays a live audio stream.
+Plays online Qur'an radio.
 
- - Type `-qlive makkah` for a stream from al-Masjid al-Ḥarām in Makkah.
--  Type `-qlive quran` for Qur'an radio.
+-  Type `-qlive short recitations` for short recitations.
 
 ### -qvolume
 Changes the volume of the recitation. 

@@ -12,22 +12,6 @@ class Help(commands.Cog):
         em = discord.Embed(colour=0x006400)
         em.set_thumbnail(url=ICON)
 
-        if command is None:
-
-            em.set_author(name='Iqra Help')
-            em.add_field(value="**Use `-qhelp <command>` for more information about a command.** Example: "
-                               "`-qhelp qplay`\n\n"
-                               "• `-qplay` - plays the recitation of a surah, ayah or mushaf page.\n"
-                               "• `-qlive` - plays live audio either from Makkah or online Qur'an radio.\n"
-                               "• `-reciters` - lists the reciters that can be used with `-qplay`.\n"
-                               "• `-qsearch` - search the reciter list for `-qplay`\n"
-                               "• `-qstop` - disconnects the bot from voice chat.\n"
-                               "• `-qpause` - pauses the bot.\n"
-                               "• `-qresume` - resumes the bot.\n"
-                               "• `-qvolume` - changes the volume of the bot.", name='Overview')
-            em.add_field(name="Links", value="• [GitHub](https://github.com/galacticwarrior9/QuranBot)\n"
-                                             "• [Support Server](https://discord.gg/Ud3MHJR)", inline=False)
-
         if command == "qplay":
             em.set_author(name='-qplay')
             em.add_field(value="**-qplay** plays a surah, ayah or page from the mushaf in a voice channel."
@@ -59,9 +43,8 @@ class Help(commands.Cog):
 
         if command == "qlive":
             em.set_author(name='-qlive')
-            em.add_field(value="**-qlive** streams live audio.", name='Description', inline=False)
-            em.add_field(value="Type `-qlive Makkah` for a live audio stream from al-Masjid al-Ḥarām in Makkah.\n\n"
-                               "Type `-qlive Quran Radio` for live Quran radio.", name='Usage', inline=False)
+            em.add_field(value="**-qlive** streams online Quran radio.", name='Description', inline=False)
+            em.add_field(value="Type `-qlive Short Recitations` for a stream of short recitations.\n\n", inline=False)
 
         if command == "qstop":
             em.set_author(name='-qstop')
@@ -74,6 +57,21 @@ class Help(commands.Cog):
         if command == "qpause":
             em.set_author(name='-qpause')
             em.add_field(value="**-qpause** pauses the bot if it is playing.", name='Description', inline=True)
+
+        else:
+            em.set_author(name='Iqra Help')
+            em.add_field(value="**Use `-qhelp <command>` for more information about a command.** Example: "
+                               "`-qhelp qplay`\n\n"
+                               "• `-qplay` - plays the recitation of a surah, ayah or mushaf page.\n"
+                               "• `-qlive` - plays live audio either from Makkah or online Qur'an radio.\n"
+                               "• `-reciters` - lists the reciters that can be used with `-qplay`.\n"
+                               "• `-qsearch` - search the reciter list for `-qplay`\n"
+                               "• `-qstop` - disconnects the bot from voice chat.\n"
+                               "• `-qpause` - pauses the bot.\n"
+                               "• `-qresume` - resumes the bot.\n"
+                               "• `-qvolume` - changes the volume of the bot.", name='Overview')
+            em.add_field(name="Links", value="• [GitHub](https://github.com/galacticwarrior9/QuranBot)\n"
+                                             "• [Support Server](https://discord.gg/Ud3MHJR)", inline=False)
 
         await ctx.send(embed=em)
 

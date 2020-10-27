@@ -1,7 +1,8 @@
 import discord
 from discord.ext import commands
 
-bot = commands.Bot(command_prefix='-')
+intents = discord.Intents(guilds=True, voice_states=True, messages=True, reactions=True)
+bot = commands.Bot(command_prefix='-', intents=intents)
 
 cogs = ['quran', 'help', 'reciters']
 
