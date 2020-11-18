@@ -25,36 +25,37 @@ class Help(commands.Cog):
                                , name='Playing a page from the mushaf', inline=True)
             em.add_field(value="Type `-reciters` for a list of reciters.", name='Reciters', inline=False)
 
-        if command == "qvolume":
+        elif command == "qvolume":
             em.set_author(name='-qvolume')
             em.add_field(value="**-qvolume** changes the volume of the bot.", name='Description', inline=True)
             em.add_field(value="`-qvolume <volume>`\n\n`<volume>` must be between 1 and 100.\n\nExample: `-qvolume 50`"
                                , name='Usage', inline=True)
 
-        if command == "qsearch":
+        elif command == "qsearch":
             em.set_author(name='-qsearch')
             em.add_field(value="**-qsearch** searches the list of surah reciters.", name='Description', inline=True)
             em.add_field(value="`-qsearch <reciter name>`\n\nExample: `-qsearch dossary`", name='Usage', inline=True)
 
-        if command == "reciters":
+        elif command == "reciters":
             em.set_author(name='-reciters')
             em.add_field(value="**-reciters** sends the lists of reciters for `-qplay`.", name='Description',
                          inline=True)
 
-        if command == "qlive":
+        elif command == "qlive":
             em.set_author(name='-qlive')
             em.add_field(value="**-qlive** streams online Quran radio.", name='Description', inline=False)
-            em.add_field(value="Type `-qlive Short Recitations` for a stream of short recitations.\n\n", inline=False)
+            em.add_field(value="Type `-qlive Short Recitations` for a stream of short recitations.\n\n",  name='Usage',
+                         inline=False)
 
-        if command == "qstop":
+        elif command == "qstop":
             em.set_author(name='-qstop')
             em.add_field(value="**-qstop** disconnects the bot from voice chat.", name='Description', inline=True)
 
-        if command == "qresume":
+        elif command == "qresume":
             em.set_author(name='-qresume')
             em.add_field(value="**-qresume** resumes the bot if it is paused.", name='Description', inline=True)
 
-        if command == "qpause":
+        elif command == "qpause":
             em.set_author(name='-qpause')
             em.add_field(value="**-qpause** pauses the bot if it is playing.", name='Description', inline=True)
 
