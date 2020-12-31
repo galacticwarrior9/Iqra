@@ -238,7 +238,7 @@ class Reciters(commands.Cog):
 
             try:
                 await msg.remove_reaction(reaction.emoji, user)
-            except discord.ext.commands.errors.CommandInvokeError:
+            except:
                 pass
 
 
