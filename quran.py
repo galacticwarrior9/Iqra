@@ -15,6 +15,7 @@ PAGE_NOT_FOUND = ":x: **Sorry, the page must be between 1 and 604.**"
 DISCONNECTED = ":white_check_mark: **Successfully disconnected.**"
 INVALID_VOLUME = ":x: **The volume must be between 0 and 100.**"
 INVALID_VERSE = ":x: **Please provide a verse.** For example, 1:2 is Surah al-Fatiha, ayah 2."
+INVALID_VERSE_ORDER = ":x: **The first verse number needs to be smaller than the last one.** For example, 1:2-4 is Surah al-Fatiha, ayah 2 to ayah 4."
 NON_EXISTENT_VERSE = ":x: **There are only {} verses in this surah.**"
 ALREADY_PLAYING = ":x: **Already playing**. To stop playing, type `-qstop`."
 NOT_PLAYING = ":x: The bot is not playing."
@@ -200,13 +201,30 @@ class Quran(commands.Cog):
     async def ayah(self, ctx, ref: str, *, reciter: str = 'Mishary Alafasi'):
 
         try:
-            surah, ayah = ref.split(':')
+            surah, ayat = ref.split(':')
             surah = int(surah)
-            ayah = int(ayah)
+
+            transliterated_surah, arabic_surah = await self.get_surah_info(surah)
+
+            if "-" in ayat:
+                ayah_first, ayah_last = ayat.split("-")
+                ayah_first = int(ayah_first)
+                ayah_last = int(ayah_last)
+                em = self.make_embed("Qurʼān", description, f'Requested by {ctx.message.author}', 0x006400)
+                description = f'**Playing**: Surah {transliterated_surah} ({arabic_surah}), Ayat {ayah_first}-{ayah_last}. ' \
+                      f'\n**Reciter**: {reciter.name} *({reciter.mushaf_type})*\n**Riwayah**: *{reciter.riwayah}*'
+            else:
+                ayah_first = int(ayat)
+                ayah_last = verse_count   # Only for constraint checking later.
+                em = self.make_embed("Qurʼān", description, f'Requested by {ctx.message.author}', 0x006400,
+                             f'https://everyayah.com/data/QuranText_jpg/{surah}_{ayah_first}.jpg')
+                description = f'**Playing**: Surah {transliterated_surah} ({arabic_surah}), Ayah {ayah_first}. ' \
+                      f'\n**Reciter**: {reciter.name} *({reciter.mushaf_type})*\n**Riwayah**: *{reciter.riwayah}*'
+                
 
         except:
-            return await ctx.send("Invalid arguments. Commands: `-qplay ayah <surah>:<ayah> <reciter>`."
-                                  "\n\nExample: `-qplay ayah 2:255 abdul rahman al-sudais`.")
+            return await ctx.send("Invalid arguments. Commands: `-qplay ayah <surah>:<first ayah>-<last ayah> <reciter>`."
+                                  "\n\nExample: `-qplay ayah 2:253-255 abdul rahman al-sudais`.")
 
         reciter = await get_ayah_reciter(reciter.lower())
 
@@ -217,20 +235,20 @@ class Quran(commands.Cog):
             return await ctx.send(SURAH_NOT_FOUND)
 
         verse_count = await self.get_verse_count(surah)
-        if ayah > verse_count:
+        if ayah_first > verse_count or ayah_last > verse_count:
             return await ctx.send(NON_EXISTENT_VERSE.format(verse_count))
-
-        url = self.get_ayah_file(reciter, surah, ayah)
-
-        await self.create_player(ctx, url)
-
-        transliterated_surah, arabic_surah = await self.get_surah_info(surah)
-        description = f'**Playing**: Surah {transliterated_surah} ({arabic_surah}), Ayah {ayah}. ' \
-                      f'\n**Reciter**: {reciter.name} *({reciter.mushaf_type})*\n**Riwayah**: *{reciter.riwayah}*'
-
-        em = self.make_embed("Qurʼān", description, f'Requested by {ctx.message.author}', 0x006400,
-                             f'https://everyayah.com/data/QuranText_jpg/{surah}_{ayah}.jpg')
+          
+        if not ayah_first < ayah_last:
+            return await ctx.send(INVALID_VERSE_ORDER)
+          
+        
         await ctx.send(embed=em)
+        
+        for ayah in range(ayah_first, ayah_last):
+            url = self.get_ayah_file(reciter, surah, ayah)
+            await self.create_player(ctx, url)
+
+        
 
     @qplay.command()
     async def page(self, ctx, page: int, *, reciter: str = 'mishary al-afasy'):
