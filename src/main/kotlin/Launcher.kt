@@ -1,4 +1,5 @@
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory
+import dev.minn.jda.ktx.jdabuilder.injectKTX
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.requests.GatewayIntent
@@ -9,14 +10,16 @@ fun main() {
         .setActivity(Activity.listening("Qurʾān"))
         .setAudioSendFactory(NativeAudioSendFactory())
         .disableCache(CacheFlag.ACTIVITY,
-            CacheFlag.EMOTE,
+            CacheFlag.EMOJI,
+            CacheFlag.STICKER,
             CacheFlag.ONLINE_STATUS,
             CacheFlag.ROLE_TAGS)
         .disableIntents(GatewayIntent.GUILD_PRESENCES,
             GatewayIntent.GUILD_MESSAGE_TYPING,
             GatewayIntent.GUILD_BANS,
-            GatewayIntent.GUILD_EMOJIS,
+            GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
             GatewayIntent.GUILD_MESSAGE_REACTIONS)
+        .injectKTX() // apply CoroutineEventManager
         .build()
         .awaitReady()
 
