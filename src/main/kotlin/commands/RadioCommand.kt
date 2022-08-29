@@ -1,16 +1,13 @@
 package commands
 
-import audioplayer.AudioManager
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
-import net.dv8tion.jda.api.Permission
-import net.dv8tion.jda.api.entities.GuildChannel
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import util.getVoiceData
-import util.replyAndSend
+import util.sendReply
 
 
 class RadioCommand : ListenerAdapter() {
@@ -35,7 +32,7 @@ class RadioCommand : ListenerAdapter() {
         guildAudioManager.playerManager.loadItem(radioUrl, object : AudioLoadResultHandler {
             override fun trackLoaded(track: AudioTrack) {
                 guildAudioManager.player.playTrack(track)
-                event.replyAndSend("Now streaming Qur'an recitations.")
+                event.sendReply("Now streaming Qur'an recitations.")
             }
 
             override fun playlistLoaded(playlist: AudioPlaylist) {
@@ -43,11 +40,11 @@ class RadioCommand : ListenerAdapter() {
             }
 
             override fun noMatches() {
-                event.replyAndSend("There was an error while attempting to find the audio source.")
+                event.sendReply("There was an error while attempting to find the audio source.")
             }
 
             override fun loadFailed(throwable: FriendlyException) {
-                event.replyAndSend("There was an error while attempting to find the audio source.")
+                event.sendReply("There was an error while attempting to find the audio source.")
             }
         })
 
