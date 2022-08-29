@@ -13,14 +13,14 @@ class ResumeCommand : ListenerAdapter() {
         }
 
         val guildAudioManager = AudioManager.getGuildHandler(event.guild!!)
-        return if (guildAudioManager.player.playingTrack !== null) {
+        if (guildAudioManager.player.playingTrack !== null) {
             if (!guildAudioManager.player.isPaused) {
-                event.replySafely("Playback is not paused.", true)
+                return event.replySafely("Playback is not paused.", true)
             }
             guildAudioManager.player.isPaused = false
-            event.replySafely(":arrow_forward: Playback has resumed.")
+            return event.replySafely(":arrow_forward: Playback has resumed.")
         } else {
-            event.replySafely("The bot is not playing.", true)
+            return event.replySafely("The bot is not playing.", true)
         }
     }
 

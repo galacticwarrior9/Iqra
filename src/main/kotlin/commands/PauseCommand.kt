@@ -13,14 +13,14 @@ class PauseCommand : ListenerAdapter() {
         }
 
         val guildAudioManager = AudioManager.getGuildHandler(event.guild!!)
-        return if (guildAudioManager.player.playingTrack !== null) {
+        if (guildAudioManager.player.playingTrack !== null) {
             if (guildAudioManager.player.isPaused) {
-                event.replySafely("Playback is already paused.", true)
+                return event.replySafely("Playback is already paused.", true)
             }
             guildAudioManager.player.isPaused = true
-            event.replySafely(":pause_button: Playback has been paused.")
+            return event.replySafely(":pause_button: Playback has been paused.")
         } else {
-            event.replySafely("The bot is not playing.", true)
+            return event.replySafely("The bot is not playing.", true)
         }
     }
 
