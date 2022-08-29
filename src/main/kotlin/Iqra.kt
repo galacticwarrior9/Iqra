@@ -31,6 +31,7 @@ class Iqra(private val bot: JDA) {
         bot.addEventListener(PlayCommand(logger))
         bot.addEventListener(PauseCommand())
         bot.addEventListener(ResumeCommand())
+        bot.addEventListener(HelpCommand())
 
         // Other listeners
         bot.addEventListener(VoiceChannelListener())
@@ -42,6 +43,8 @@ class Iqra(private val bot: JDA) {
             Commands.slash("leave", "Instructs the bot to leave its voice channel."),
             Commands.slash("pause", "Instructs the bot pause playback."),
             Commands.slash("resume", "Instructs the bot to resume playing paused playback."),
+            Commands.slash("help", "Browse the bot's documentation"),
+
             Commands.slash("reciters", "Browse or search for reciters.")
                 .addSubcommands(
                     SubcommandData("list", "List reciters.")
@@ -58,6 +61,7 @@ class Iqra(private val bot: JDA) {
                             OptionData(OptionType.STRING, "name", "The name of the reciter.", true)
                         )
                 ),
+
             Commands.slash("play", "Play selected portions of the Qur'an.")
                 .addSubcommands(SubcommandData("surah", "Play a surah.")
                     .addOption(OptionType.INTEGER, "surah_num", "The order in which this surah appears in the Qur'an, e.g. 1 for al-Fatihah.", true)

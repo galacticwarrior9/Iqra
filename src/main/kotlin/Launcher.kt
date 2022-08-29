@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag
 
 fun main() {
     val jda = JDABuilder.createDefault(System.getenv("token"))
-        .setActivity(Activity.listening("Qurʾān"))
+        .setActivity(Activity.listening("Qurʾān - /help"))
         .setAudioSendFactory(NativeAudioSendFactory())
         .disableCache(CacheFlag.ACTIVITY,
             CacheFlag.EMOJI,

@@ -32,7 +32,7 @@ class RadioCommand : ListenerAdapter() {
         guildAudioManager.playerManager.loadItem(radioUrl, object : AudioLoadResultHandler {
             override fun trackLoaded(track: AudioTrack) {
                 guildAudioManager.player.playTrack(track)
-                event.sendReply("Now streaming Qur'an recitations.")
+                return event.sendReply("Now streaming Qur'an recitations.")
             }
 
             override fun playlistLoaded(playlist: AudioPlaylist) {
@@ -40,11 +40,11 @@ class RadioCommand : ListenerAdapter() {
             }
 
             override fun noMatches() {
-                event.sendReply("There was an error while attempting to find the audio source.")
+                return event.sendReply("There was an error while attempting to find the audio source.")
             }
 
             override fun loadFailed(throwable: FriendlyException) {
-                event.sendReply("There was an error while attempting to find the audio source.")
+                return event.sendReply("There was an error while attempting to find the audio source.")
             }
         })
 
