@@ -2,10 +2,7 @@ import com.jagrosh.jdautilities.commons.waiter.EventWaiter
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers
-import commands.LeaveCommand
-import commands.PlayCommand
-import commands.RadioCommand
-import commands.RecitersCommand
+import commands.*
 import listeners.VoiceChannelListener
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.interactions.commands.OptionType
@@ -32,6 +29,8 @@ class Iqra(private val bot: JDA) {
         bot.addEventListener(RadioCommand())
         bot.addEventListener(RecitersCommand(waiter))
         bot.addEventListener(PlayCommand(logger))
+        bot.addEventListener(PauseCommand())
+        bot.addEventListener(ResumeCommand())
 
         // Other listeners
         bot.addEventListener(VoiceChannelListener())
@@ -41,6 +40,8 @@ class Iqra(private val bot: JDA) {
         guild.updateCommands().addCommands(
             Commands.slash("radio", "Stream Qur'an recitations to your voice channel."),
             Commands.slash("leave", "Instructs the bot to leave its voice channel."),
+            Commands.slash("pause", "Instructs the bot pause playback."),
+            Commands.slash("resume", "Instructs the bot to resume playing paused playback."),
             Commands.slash("reciters", "Browse or search for reciters.")
                 .addSubcommands(
                     SubcommandData("list", "List reciters.")
