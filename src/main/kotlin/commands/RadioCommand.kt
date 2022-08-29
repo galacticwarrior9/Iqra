@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.GuildChannel
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import util.getVoiceData
 import util.replyAndSend
 
 
@@ -21,20 +22,12 @@ class RadioCommand : ListenerAdapter() {
             return
         }
 
-        val guild = event.guild ?: return
-        val memberVoiceChannel = event.member?.voiceState?.channel
-            ?: return event.replyAndSend("You must join a voice channel to use this command.", true)
+        val slashVoiceData = event.getVoiceData() ?: return
 
-        if (!guild.selfMember.hasPermission(memberVoiceChannel as GuildChannel, Permission.VOICE_CONNECT)) {
-            return event.replyAndSend("I do not have permission to join this voice channel!", true)
-        }
+        val audioManager = slashVoiceData.guild.audioManager
+        val guildAudioManager = slashVoiceData.guildAudioManager
+        val memberVoiceChannel = slashVoiceData.audioChannel
 
-        val guildAudioManager = AudioManager.getGuildHandler(guild)
-        if (guildAudioManager.player.playingTrack !== null) {
-            return event.replyAndSend("I am already playing something in this channel!", true)
-        }
-
-        val audioManager = guild.audioManager
         audioManager.openAudioConnection(memberVoiceChannel)
 
         audioManager.sendingHandler = guildAudioManager.playerSendHandler

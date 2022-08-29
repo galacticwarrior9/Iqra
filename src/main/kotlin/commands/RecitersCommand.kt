@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.events.GenericEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle
 import org.slf4j.Logger
+import util.replyAndSend
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -22,11 +23,11 @@ import java.net.URLConnection
 import java.util.concurrent.TimeUnit
 
 
-private val reciterListUrl = URL("https://mp3quran.net/api/_english.php")
+val reciterListUrl = URL("https://mp3quran.net/api/_english.php")
 
-data class Reciter(val name: String, val count: Int, val riwayah: String, val Server: URL)
+data class Reciter(val name: String, val count: Int, val rewaya: String, val Server: URL)
 
-class RecitersCommand(private val waiter: EventWaiter, private val logger: Logger): CoroutineEventListener {
+class RecitersCommand(private val waiter: EventWaiter): CoroutineEventListener {
 
     override suspend fun onEvent(event: GenericEvent) {
         if (event !is SlashCommandInteractionEvent || event.name != "reciters") {
@@ -34,16 +35,14 @@ class RecitersCommand(private val waiter: EventWaiter, private val logger: Logge
         }
 
         val reciters = getReciters() ?: run {
-            return event.hook.sendMessage("Could not retrieve reciters list! Please try again later.")
-                .setEphemeral(true)
-                .queue()
+            return event.replyAndSend("Could not retrieve reciters list! Please try again later.", true)
         }
 
         val reciterPageEmbeds = mutableListOf<MessageEmbed>()
         val reciterEmbedBuilder = EmbedBuilder()
-        reciterEmbedBuilder.setTitle("Reciters")
-        reciterEmbedBuilder.setFooter("Page 1")
-        reciterEmbedBuilder.setColor(0x2a6b2b)
+            .setTitle("Reciters")
+            .setFooter("Page 1")
+            .setColor(0x2a6b2b)
 
         // For every 10 reciters, we build an embed
         var counter = 0
@@ -74,39 +73,39 @@ class RecitersCommand(private val waiter: EventWaiter, private val logger: Logge
                 }
             }
     }
+}
 
-    private suspend fun getReciters(): List<Reciter>? = withContext(Dispatchers.IO) {
-        val request: URLConnection
-        try {
-            request = reciterListUrl.openConnection()
-            request.connect()
-        } catch (ex: IOException) {
-            logger.error("Failed to connect to $reciterListUrl!")
-            return@withContext null
-        }
-
-        val json: JsonElement
-        try {
-            json = JsonParser.parseReader(InputStreamReader(request.content as InputStream))
-        } catch (ex: Exception) {
-            logger.error("Failed to parse JSON at $reciterListUrl!")
-            return@withContext null
-        }
-
-        val reciters = mutableListOf<Reciter>()
-        val reciterNames = mutableSetOf<String>()
-
-        val reciterJsonArray = json.asJsonObject.getAsJsonArray("reciters")
-        val gson = Gson()
-        for (reciterJson in reciterJsonArray) {
-            val reciter = gson.fromJson(reciterJson, Reciter::class.java)
-            // TODO - support riwayat
-            if (reciterNames.contains(reciter.name.lowercase()) || reciter.count != 114) {
-                continue
-            }
-            reciters.add(reciter)
-            reciterNames.add(reciter.name.lowercase())
-        }
-        return@withContext reciters
+suspend fun getReciters(): List<Reciter>? = withContext(Dispatchers.IO) {
+    val request: URLConnection
+    try {
+        request = reciterListUrl.openConnection()
+        request.connect()
+    } catch (ex: IOException) {
+        Iqra.logger.error("Failed to connect to $reciterListUrl!")
+        return@withContext null
     }
+
+    val json: JsonElement
+    try {
+        json = JsonParser.parseReader(InputStreamReader(request.content as InputStream))
+    } catch (ex: Exception) {
+        Iqra.logger.error("Failed to parse JSON at $reciterListUrl!")
+        return@withContext null
+    }
+
+    val reciters = mutableListOf<Reciter>()
+    val reciterNames = mutableSetOf<String>()
+
+    val reciterJsonArray = json.asJsonObject.getAsJsonArray("reciters")
+    val gson = Gson()
+    for (reciterJson in reciterJsonArray) {
+        val reciter = gson.fromJson(reciterJson, Reciter::class.java)
+        // TODO - support riwayat
+        if (reciterNames.contains(reciter.name) || reciter.count != 114) {
+            continue
+        }
+        reciters.add(reciter)
+        reciterNames.add(reciter.name)
+    }
+    return@withContext reciters
 }
