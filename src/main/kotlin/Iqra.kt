@@ -36,7 +36,7 @@ class Iqra(private val bot: JDA) {
         // Other listeners
         bot.addEventListener(VoiceChannelListener())
 
-        val guild = bot.getGuildById(308241121165967362)!!
+        val guild = bot.getGuildById(610613297452023837)!!
 
         guild.updateCommands().addCommands(
             Commands.slash("radio", "Stream Qur'an recitations to your voice channel."),
@@ -60,12 +60,12 @@ class Iqra(private val bot: JDA) {
             Commands.slash("play", "Play selected portions of the Qur'an.")
                 .addSubcommands(SubcommandData("surah", "Play a surah.")
                     .addOption(OptionType.INTEGER, "surah_num", "The order in which this surah appears in the Qur'an, e.g. 1 for al-Fatihah.", true)
-                    .addOption(OptionType.STRING, "reciter_name", "The name of the reciter.", false))
+                    .addOption(OptionType.STRING, "reciter_name", "The name of the reciter, from the /reciters command.", false))
                 .addSubcommands(SubcommandData("ayah", "Play an ayah.")
                     .addOption(OptionType.INTEGER, "surah_num", "The order in which the surah of this ayah appears in the Qur'an, e.g. 1 for al-Fatihah.", true)
                     .addOption(OptionType.INTEGER, "ayah_num", "The order in which this ayah appears in the surah.", true)
                     .addOption(OptionType.INTEGER, "last_ayah_num", "The last ayah in the surah to play, if you want to play multiple ayat. Must be higher than ayah_num.", false)
-                    .addOption(OptionType.STRING, "reciter_name", "The name of the reciter.", false))
+                    .addOption(OptionType.STRING, "reciter_name", "The name of the reciter, from the /reciters command.", false))
         ).queue()
     }
 

@@ -29,6 +29,10 @@ class PlayCommand(private val logger: Logger) : CoroutineEventListener {
 
         // Get surah meta.
         val surahNumber = event.getOption("surah_num") { option -> option.asInt } ?: return
+        if (surahNumber < 1 || surahNumber > 114) {
+            return event.replySafely(":warning: The surah number must be between 1 and 114.", true)
+        }
+
         val surahMeta = getSurahMeta(surahNumber) ?: run {
             return event.sendDeferredReply(":warning: Failed to retrieve information for this surah. Please try again later.", true)
         }
@@ -95,7 +99,7 @@ class PlayCommand(private val logger: Logger) : CoroutineEventListener {
                     val embedBuilder = EmbedBuilder()
                         .setTitle("Playing Surah ${surahMeta.transliteratedName} (${surahMeta.translatedName}) / ${surahMeta.arabicName}")
                         .setColor(0x2a6b2b)
-                        .setFooter("Provided through mp3quran.net.")
+                        .setFooter("Source: mp3quran.net.")
 
                     embedBuilder.descriptionBuilder
                         .append("This is a ${surahMeta.revelationLocation.asAdjective()} surah with ${surahMeta.verseCount} ayat.\n\n")
@@ -128,7 +132,7 @@ class PlayCommand(private val logger: Logger) : CoroutineEventListener {
 
             val embedBuilder = EmbedBuilder()
                 .setColor(0x2a6b2b)
-                .setFooter("Provided through mp3quran.net.")
+                .setFooter("Source: mp3quran.net.")
 
             embedBuilder.descriptionBuilder
                 .append("• **Reciter**: ${reciter.name}\n")
