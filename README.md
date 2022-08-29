@@ -4,7 +4,6 @@
 ![License](https://img.shields.io/github/license/galacticwarrior9/Iqra)
 ![Contributors](https://img.shields.io/github/contributors/galacticwarrior9/Iqra)
 
-___
 
 **Iqra** is an [open-source](https://github.com/galacticwarrior9/Iqra) Discord bot that plays Qur'an recitations in voice channels. Over 140
 reciters can be listened to on both a surah-by-surah and ayah-and-ayah basis. 
@@ -14,10 +13,8 @@ The recitations themselves are retrieved from [mp3quran.net](https://mp3quran.ne
 
 ## Documentation
 
-___
 
 ### Browing reciters
-___
 
 There are two lists of reciters available: one for surah-by-surah recitations (`/reciters list surah`), and the other for ayah-by-ayah recitations (`/reciters list ayah`).
 
@@ -27,7 +24,7 @@ These reciters can be used in the `/play` command to
 
 
 ### Playing recitations
-___
+
 
 To play a recitation, you first need to join a voice channel that the bot can also join. You can then use the `/play`
 command to select and play a recitation.
@@ -59,12 +56,12 @@ If all this seems confusing, don't worry — the commands will auto-complete as 
 
 
 ### Radio
-___
+
 The `/radio` command will stream an online Qur'an radio station to your voice channel. It tends to play a selection of 
 short recitations.
 
 ### Playback Control
-___
+
 
 You can pause the bot using `/pause` and then resume it again using `/resume`. If you need the bot to stop playing and 
 leave the channel, use `/leave`.
