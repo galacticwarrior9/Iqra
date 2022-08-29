@@ -8,6 +8,7 @@ import com.jagrosh.jdautilities.menu.ButtonEmbedPaginator
 import dev.minn.jda.ktx.events.CoroutineEventListener
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import me.xdrop.fuzzywuzzy.FuzzySearch
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.GenericEvent
@@ -34,29 +35,23 @@ class RecitersCommand(private val waiter: EventWaiter): CoroutineEventListener {
             return
         }
 
-        val reciters = getReciters() ?: run {
+        var reciters = getReciters() ?: run {
             return event.replyAndSend("Could not retrieve reciters list! Please try again later.", true)
         }
 
-        val reciterPageEmbeds = mutableListOf<MessageEmbed>()
-        val reciterEmbedBuilder = EmbedBuilder()
-            .setTitle("Reciters")
-            .setFooter("Page 1")
-            .setColor(0x2a6b2b)
+        // If we're searching, we need to filter the reciters using the search term.
+        if (event.subcommandName == "search") {
+            val searchTerm = event.getOption("name") { option -> option.asString }!!
+            reciters = reciters.asSequence()
+                .filter { reciter -> FuzzySearch.tokenSetPartialRatio(searchTerm, reciter.name) > 70 }
+                .toList()
 
-        // For every 10 reciters, we build an embed
-        var counter = 0
-        for (reciter in reciters) {
-            counter++
-            if (counter > 10) {
-                reciterPageEmbeds.add(reciterEmbedBuilder.build())
-                reciterEmbedBuilder.descriptionBuilder.clear()
-                reciterEmbedBuilder.setFooter("Page ${reciterPageEmbeds.size + 1}")
-                counter = 0
+            if (reciters.isEmpty()) {
+                return event.replyAndSend(":warning: Could not find any reciters with this name.", true)
             }
-            // TODO - different riwayat
-            reciterEmbedBuilder.descriptionBuilder.append("• ${reciter.name}\n")
         }
+
+        val reciterPageEmbeds = paginateReciters(reciters)
 
         val paginator = ButtonEmbedPaginator.Builder()
             .setUsers(event.user)
@@ -64,6 +59,7 @@ class RecitersCommand(private val waiter: EventWaiter): CoroutineEventListener {
             .setButtonStyle(ButtonStyle.SUCCESS)
             .setEventWaiter(waiter)
             .setTimeout(3, TimeUnit.MINUTES)
+            .waitOnSinglePage(true)
             .setFinalAction { message -> message.editMessage("**:warning: This message has timed out**. Please re-run the command!").queue() }
             .build()
 
@@ -73,6 +69,30 @@ class RecitersCommand(private val waiter: EventWaiter): CoroutineEventListener {
                 }
             }
     }
+}
+
+private fun paginateReciters(reciters: List<Reciter>): List<MessageEmbed> {
+    val reciterPageEmbeds = mutableListOf<MessageEmbed>()
+    val reciterEmbedBuilder = EmbedBuilder()
+        .setTitle("Reciters")
+        .setFooter("Page 1")
+        .setColor(0x2a6b2b)
+
+    // For every 10 reciters, we build an embed
+    var counter = 0
+    val reciterIterator = reciters.iterator()
+    while (reciterIterator.hasNext()) {
+        val reciter = reciterIterator.next();
+        counter++
+        reciterEmbedBuilder.descriptionBuilder.append("• ${reciter.name}\n")
+        if (!reciterIterator.hasNext() || counter > 10) {
+            reciterPageEmbeds.add(reciterEmbedBuilder.build())
+            reciterEmbedBuilder.descriptionBuilder.clear()
+            reciterEmbedBuilder.setFooter("Page ${reciterPageEmbeds.size + 1}")
+            counter = 0
+        }
+    }
+    return reciterPageEmbeds
 }
 
 suspend fun getReciters(): List<Reciter>? = withContext(Dispatchers.IO) {

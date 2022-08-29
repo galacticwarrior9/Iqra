@@ -152,6 +152,11 @@
             <scope>compile</scope>
             <type>pom</type>
         </dependency>
+        <dependency>
+            <groupId>me.xdrop</groupId>
+            <artifactId>fuzzywuzzy</artifactId>
+            <version>1.4.0</version>
+        </dependency>
     </dependencies>
 
 </project>

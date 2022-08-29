@@ -10,6 +10,7 @@ import listeners.VoiceChannelListener
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
+import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -40,7 +41,22 @@ class Iqra(private val bot: JDA) {
         guild.updateCommands().addCommands(
             Commands.slash("radio", "Stream Qur'an recitations in your voice channel."),
             Commands.slash("leave", "Instructs the bot to leave its voice channel."),
-            Commands.slash("reciters", "Browse or search for reciters."),
+            Commands.slash("reciters", "Browse or search for reciters.")
+                .addSubcommands(
+                    SubcommandData("list", "List reciters.")
+                        .addOptions(
+                            OptionData(OptionType.STRING, "type", "Should we list reciters for per-surah recitations or per-ayah recitations?")
+                                .addChoice("surah", "surah")
+                                .addChoice("ayah", "ayah")
+                        ),
+                    SubcommandData("search", "Search reciters.")
+                        .addOptions(
+                            OptionData(OptionType.STRING, "type", "Should we search reciters for per-surah recitations or per-ayah recitations?")
+                                .addChoice("surah", "surah")
+                                .addChoice("ayah", "ayah"),
+                            OptionData(OptionType.STRING, "name", "The name of the reciter.")
+                        )
+                ),
             Commands.slash("play", "Play selected portions of the Qur'an.")
                 .addSubcommands(SubcommandData("surah", "Play a surah.")
                     .addOption(OptionType.INTEGER, "surah_num", "The order in which this surah appears in the Qur'an, e.g. 1 for al-Fatihah.")
