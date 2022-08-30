@@ -1,4 +1,4 @@
-package audioplayer
+package com.gmail.galacticwarrior9.audioplayer
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter

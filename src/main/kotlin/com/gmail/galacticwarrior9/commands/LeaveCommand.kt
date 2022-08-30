@@ -1,9 +1,9 @@
-package commands
+package com.gmail.galacticwarrior9.commands
 
-import audioplayer.AudioManager
+import com.gmail.galacticwarrior9.audioplayer.AudioManager
+import com.gmail.galacticwarrior9.util.sendReply
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
-import util.sendReply
 
 class LeaveCommand : ListenerAdapter() {
 

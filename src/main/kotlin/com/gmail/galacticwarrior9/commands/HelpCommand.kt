@@ -1,4 +1,4 @@
-package commands
+package com.gmail.galacticwarrior9.commands
 
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed

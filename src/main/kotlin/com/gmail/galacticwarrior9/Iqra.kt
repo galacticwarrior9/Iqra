@@ -1,9 +1,11 @@
+package com.gmail.galacticwarrior9
+
+import com.gmail.galacticwarrior9.commands.*
+import com.gmail.galacticwarrior9.listeners.VoiceChannelListener
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers
-import commands.*
-import listeners.VoiceChannelListener
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
@@ -36,9 +38,7 @@ class Iqra(private val bot: JDA) {
         // Other listeners
         bot.addEventListener(VoiceChannelListener())
 
-        val guild = bot.getGuildById(610613297452023837)!!
-
-        guild.updateCommands().addCommands(
+        bot.updateCommands().addCommands(
             Commands.slash("radio", "Stream Qur'an recitations to your voice channel."),
             Commands.slash("leave", "Instructs the bot to leave its voice channel."),
             Commands.slash("pause", "Instructs the bot pause playback."),

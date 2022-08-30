@@ -1,6 +1,5 @@
-package audioplayer
+package com.gmail.galacticwarrior9.audioplayer
 
-import AudioPlayerSendHandler
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager
 
 class GuildAudioManager(val playerManager: AudioPlayerManager) {

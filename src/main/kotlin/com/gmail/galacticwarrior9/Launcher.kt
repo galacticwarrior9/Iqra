@@ -1,3 +1,5 @@
+package com.gmail.galacticwarrior9
+
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory
 import dev.minn.jda.ktx.jdabuilder.injectKTX
 import net.dv8tion.jda.api.JDABuilder

@@ -1,6 +1,6 @@
-package audioplayer
+package com.gmail.galacticwarrior9.audioplayer
 
-import Iqra
+import com.gmail.galacticwarrior9.Iqra
 import net.dv8tion.jda.api.entities.Guild
 
 object AudioManager {

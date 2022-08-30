@@ -1,9 +1,9 @@
-package commands
+package com.gmail.galacticwarrior9.commands
 
-import com.google.gson.Gson
+import com.gmail.galacticwarrior9.Iqra
+import com.gmail.galacticwarrior9.util.sendReply
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
-import com.google.gson.JsonNull
 import com.google.gson.JsonParser
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter
 import com.jagrosh.jdautilities.menu.ButtonEmbedPaginator
@@ -16,7 +16,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.GenericEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle
-import util.sendReply
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader

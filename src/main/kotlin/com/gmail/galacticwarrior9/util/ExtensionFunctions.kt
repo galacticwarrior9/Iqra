@@ -1,7 +1,7 @@
-package util
+package com.gmail.galacticwarrior9.util
 
-import audioplayer.AudioManager
-import audioplayer.GuildAudioManager
+import com.gmail.galacticwarrior9.audioplayer.AudioManager
+import com.gmail.galacticwarrior9.audioplayer.GuildAudioManager
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.AudioChannel
 import net.dv8tion.jda.api.entities.Guild

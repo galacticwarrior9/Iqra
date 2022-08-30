@@ -1,5 +1,9 @@
-package commands
+package com.gmail.galacticwarrior9.commands
 
+import com.gmail.galacticwarrior9.util.getSurahMeta
+import com.gmail.galacticwarrior9.util.getVoiceData
+import com.gmail.galacticwarrior9.util.replySafely
+import com.gmail.galacticwarrior9.util.sendDeferredReply
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist
@@ -9,10 +13,6 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.GenericEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import org.slf4j.Logger
-import util.getSurahMeta
-import util.getVoiceData
-import util.replySafely
-import util.sendDeferredReply
 
 class PlayCommand(private val logger: Logger) : CoroutineEventListener {
     override suspend fun onEvent(event: GenericEvent) {

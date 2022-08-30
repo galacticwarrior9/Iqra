@@ -1,6 +1,6 @@
-package util
+package com.gmail.galacticwarrior9.util
 
-import Iqra
+import com.gmail.galacticwarrior9.Iqra
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +29,8 @@ data class SurahMeta(val arabicName: String,
                      val transliteratedName: String,
                      val translatedName: String,
                      val verseCount: Int,
-                     val revelationLocation: RevelationLocation)
+                     val revelationLocation: RevelationLocation
+)
 
 /**
  * @param surahNum - the order in which this surah appears in the Qur'an.

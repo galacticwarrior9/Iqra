@@ -1,6 +1,6 @@
-package listeners
+package com.gmail.galacticwarrior9.listeners
 
-import audioplayer.AudioManager
+import com.gmail.galacticwarrior9.audioplayer.AudioManager
 import net.dv8tion.jda.api.entities.AudioChannel
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent

@@ -1,13 +1,13 @@
-package commands
+package com.gmail.galacticwarrior9.commands
 
+import com.gmail.galacticwarrior9.util.getVoiceData
+import com.gmail.galacticwarrior9.util.sendReply
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
-import util.getVoiceData
-import util.sendReply
 
 
 class RadioCommand : ListenerAdapter() {
