@@ -65,3 +65,16 @@ short recitations.
 
 You can pause the bot using `/pause` and then resume it again using `/resume`. If you need the bot to stop playing and 
 leave the channel, use `/leave`.
+
+
+## Information for Developers
+
+To build Iqra, you require JDK 17 or above on your system. Clone this repository, install [Maven](https://maven.apache.org/install.html) and then run the following command:
+
+```
+mvn clean install
+```
+
+This will build an executable JAR with shaded dependencies in the `/target` folder. 
+
+The bot token must be set in a system environment variable ([Windows]((https://docs.oracle.com/en/database/oracle/machine-learning/oml4r/1.5.1/oread/creating-and-modifying-environment-variables-on-windows.html))/[Linux](https://linuxize.com/post/how-to-set-and-list-environment-variables-in-linux/)) named `token`. You can alternatively hardcode a token in `Launcher.kt`, although this is not recommended.
