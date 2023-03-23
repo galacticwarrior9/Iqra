@@ -18,7 +18,7 @@ fun main() {
             CacheFlag.ROLE_TAGS)
         .disableIntents(GatewayIntent.GUILD_PRESENCES,
             GatewayIntent.GUILD_MESSAGE_TYPING,
-            GatewayIntent.GUILD_BANS,
+            GatewayIntent.GUILD_MODERATION,
             GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
             GatewayIntent.GUILD_MESSAGE_REACTIONS)
         .injectKTX() // apply CoroutineEventManager

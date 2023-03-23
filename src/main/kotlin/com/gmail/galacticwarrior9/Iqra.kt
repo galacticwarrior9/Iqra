@@ -23,7 +23,7 @@ class Iqra(private val bot: JDA) {
     fun start() {
         val waiter = EventWaiter()
 
-        AudioSourceManagers.registerRemoteSources(audioPlayerManager);
+        AudioSourceManagers.registerRemoteSources(audioPlayerManager)
 
         // Commands
         bot.addEventListener(waiter)
