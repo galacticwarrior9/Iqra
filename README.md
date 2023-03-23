@@ -77,4 +77,10 @@ mvn clean install
 
 This will build an executable JAR with shaded dependencies in the `/target` folder. 
 
+To run the JAR, run the following in command prompt or a terminal:
+
+```
+java -jar <jar file name>.jar
+```
+
 The bot token must be set in a system environment variable ([Windows](https://docs.oracle.com/en/database/oracle/machine-learning/oml4r/1.5.1/oread/creating-and-modifying-environment-variables-on-windows.html)/[Linux](https://linuxize.com/post/how-to-set-and-list-environment-variables-in-linux/)) named `token`. You can alternatively hardcode a token in `Launcher.kt`, although this is not recommended.

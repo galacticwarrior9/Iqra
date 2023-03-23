@@ -3,9 +3,9 @@ package com.gmail.galacticwarrior9.commands
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
 
 class HelpCommand : ListenerAdapter() {
@@ -32,7 +32,7 @@ class HelpCommand : ListenerAdapter() {
             .append("**Iqra** is a Discord bot that plays Qur'an recitations in voice channels.")
             .append("\nUse the help menu below to learn more.")
 
-        val menu = SelectMenu.create("iqra:help")
+        val menu = StringSelectMenu.create("iqra:help")
             .setMinValues(1)
             .setMaxValues(1)
             .setPlaceholder("Choose a help topic")
@@ -43,7 +43,7 @@ class HelpCommand : ListenerAdapter() {
         event.reply(MessageCreateBuilder().setEmbeds(embedBuilder.build()).setActionRow(menu).build()).queue()
     }
 
-    override fun onSelectMenuInteraction(event: SelectMenuInteractionEvent) {
+    override fun onStringSelectInteraction(event: StringSelectInteractionEvent) {
         if (event.componentId != "iqra:help") {
             return
         }

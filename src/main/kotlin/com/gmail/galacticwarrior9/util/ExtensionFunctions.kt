@@ -3,9 +3,9 @@ package com.gmail.galacticwarrior9.util
 import com.gmail.galacticwarrior9.audioplayer.AudioManager
 import com.gmail.galacticwarrior9.audioplayer.GuildAudioManager
 import net.dv8tion.jda.api.Permission
-import net.dv8tion.jda.api.entities.AudioChannel
 import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.entities.GuildChannel
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 
 data class SlashVoiceData(val guild: Guild, val audioChannel: AudioChannel, val guildAudioManager: GuildAudioManager)

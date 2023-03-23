@@ -1,23 +1,23 @@
 package com.gmail.galacticwarrior9.listeners
 
 import com.gmail.galacticwarrior9.audioplayer.AudioManager
-import net.dv8tion.jda.api.entities.AudioChannel
 import net.dv8tion.jda.api.entities.Guild
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 
 class VoiceChannelListener : ListenerAdapter() {
 
-    override fun onGuildVoiceLeave(event: GuildVoiceLeaveEvent) {
-        if (event.member === event.guild.selfMember) {
+    override fun onGuildVoiceUpdate(event: GuildVoiceUpdateEvent) {
+        // Bot left voice chat - remove guild handler
+        if (event.member === event.guild.selfMember && event.channelJoined == null) {
             return AudioManager.removeGuildHandler(event.guild)
         }
-        processBotMove(event.guild, event.channelLeft, event.channelJoined)
-    }
 
-    override fun onGuildVoiceMove(event: GuildVoiceMoveEvent) {
-        processBotMove(event.guild, event.channelLeft, event.channelJoined)
+        // Someone has left a voice channel - check if the bot is now alone. If so, disconnect.
+        if (event.channelLeft != null) {
+            processBotMove(event.guild, event.channelLeft!!, event.channelJoined)
+        }
     }
 
     private fun processBotMove(guild: Guild, channelLeft: AudioChannel, channelJoined: AudioChannel?) {
