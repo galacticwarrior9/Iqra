@@ -115,7 +115,7 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.4.0</version>
                 <configuration>
-                    <minimizeJar>true</minimizeJar>
+                    <minimizeJar>false</minimizeJar>
                 </configuration>
                 <executions>
                     <execution>
