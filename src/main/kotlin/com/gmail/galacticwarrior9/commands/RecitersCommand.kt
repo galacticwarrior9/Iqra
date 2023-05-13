@@ -84,7 +84,7 @@ class RecitersCommand(private val waiter: EventWaiter): CoroutineEventListener {
 }
 
 private fun paginateReciters(reciters: List<Reciter>): List<MessageEmbed> {
-    var numberOfPages = Math.ceil(reciters.size.toDouble() / 10).toInt()
+    val numberOfPages = Math.ceil(reciters.size.toDouble() / 10).toInt()
 
     val reciterPageEmbeds = mutableListOf<MessageEmbed>()
     val reciterEmbedBuilder = EmbedBuilder()
