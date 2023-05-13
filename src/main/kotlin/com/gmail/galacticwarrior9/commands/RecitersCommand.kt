@@ -84,10 +84,12 @@ class RecitersCommand(private val waiter: EventWaiter): CoroutineEventListener {
 }
 
 private fun paginateReciters(reciters: List<Reciter>): List<MessageEmbed> {
+    var numberOfPages = Math.ceil(reciters.size.toDouble() / 10).toInt()
+
     val reciterPageEmbeds = mutableListOf<MessageEmbed>()
     val reciterEmbedBuilder = EmbedBuilder()
         .setTitle("Reciters")
-        .setFooter("Page 1")
+        .setFooter("Page 1 of ${numberOfPages}")
         .setColor(0x2a6b2b)
 
     // For every 10 reciters, we build an embed
@@ -97,10 +99,10 @@ private fun paginateReciters(reciters: List<Reciter>): List<MessageEmbed> {
         val reciter = reciterIterator.next();
         counter++
         reciterEmbedBuilder.descriptionBuilder.append("• ${reciter.name}\n")
-        if (!reciterIterator.hasNext() || counter > 10) {
+        if (!reciterIterator.hasNext() || counter == 10) {
             reciterPageEmbeds.add(reciterEmbedBuilder.build())
             reciterEmbedBuilder.descriptionBuilder.clear()
-            reciterEmbedBuilder.setFooter("Page ${reciterPageEmbeds.size + 1}")
+            reciterEmbedBuilder.setFooter("Page ${reciterPageEmbeds.size + 1} of ${numberOfPages}")
             counter = 0
         }
     }
