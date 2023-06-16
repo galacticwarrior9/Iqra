@@ -113,7 +113,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.4.0</version>
+                <version>3.4.1</version>
                 <configuration>
                     <minimizeJar>false</minimizeJar>
                 </configuration>
@@ -133,7 +133,7 @@
         <dependency>
             <groupId>com.github.DV8FromTheWorld</groupId>
             <artifactId>JDA</artifactId>
-            <version>v5.0.0-beta.6</version>
+            <version>v5.0.0-beta.10</version>
         </dependency>
         <dependency>
             <groupId>com.sedmelluq</groupId>
@@ -143,7 +143,7 @@
         <dependency>
             <groupId>com.github.walkyst</groupId>
             <artifactId>lavaplayer-fork</artifactId>
-            <version>1.4.0</version>
+            <version>1.4.2</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
