@@ -11,10 +11,11 @@ import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData
+import net.dv8tion.jda.api.sharding.ShardManager
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class Iqra(private val bot: JDA) {
+class Iqra(private val bot: ShardManager) {
     companion object {
         val audioPlayerManager: AudioPlayerManager = DefaultAudioPlayerManager()
         val logger: Logger = LoggerFactory.getLogger(this::class.java)
@@ -38,7 +39,14 @@ class Iqra(private val bot: JDA) {
         // Other listeners
         bot.addEventListener(VoiceChannelListener())
 
-        bot.updateCommands().addCommands(
+        // Updating on shard 0 is sufficient
+        val shardZero = bot.getShardById(0)
+        if (shardZero == null) {
+            logger.error("Error: Shard 0 not found!")
+            return
+        }
+
+        shardZero.updateCommands().addCommands(
             Commands.slash("radio", "Stream Qur'an recitations to your voice channel."),
             Commands.slash("leave", "Instructs the bot to leave its voice channel."),
             Commands.slash("pause", "Instructs the bot pause playback."),

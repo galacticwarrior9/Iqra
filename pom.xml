@@ -15,7 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>17</kotlin.compiler.jvmTarget>
-        <kotlin.version>1.7.10</kotlin.version>
+        <kotlin.version>1.9.22</kotlin.version>
     </properties>
 
     <repositories>
@@ -130,16 +130,19 @@
     </build>
 
     <dependencies>
+        <!-- https://github.com/discord-jda/JDA -->
         <dependency>
             <groupId>com.github.DV8FromTheWorld</groupId>
             <artifactId>JDA</artifactId>
-            <version>v5.0.0-beta.10</version>
+            <version>v5.0.0-beta.20</version>
         </dependency>
+        <!-- https://github.com/sedmelluq/jda-nas -->
         <dependency>
             <groupId>com.sedmelluq</groupId>
             <artifactId>jda-nas</artifactId>
             <version>1.1.0</version>
         </dependency>
+        <!-- https://github.com/Walkyst/lavaplayer-fork -->
         <dependency>
             <groupId>com.github.walkyst</groupId>
             <artifactId>lavaplayer-fork</artifactId>
@@ -150,10 +153,11 @@
             <artifactId>logback-classic</artifactId>
             <version>1.2.11</version>
         </dependency>
+        <!-- https://github.com/MinnDevelopment/jda-ktx -->
         <dependency>
-            <groupId>com.github.minndevelopment</groupId>
+            <groupId>club.minnced</groupId>
             <artifactId>jda-ktx</artifactId>
-            <version>0.10.0-beta.1</version>
+            <version>0.11.0-beta.20</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
