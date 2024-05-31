@@ -192,11 +192,11 @@
             <artifactId>fuzzywuzzy</artifactId>
             <version>1.4.0</version>
         </dependency>
-        <!-- https://github.com/google/guava -->
+        <!-- https://github.com/jhalterman/expiringmap -->
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>33.2.1-jre</version>
+            <groupId>net.jodah</groupId>
+            <artifactId>expiringmap</artifactId>
+            <version>0.5.11</version>
         </dependency>
     </dependencies>
 
