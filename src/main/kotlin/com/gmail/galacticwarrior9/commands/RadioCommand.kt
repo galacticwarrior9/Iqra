@@ -12,7 +12,10 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter
 
 class RadioCommand : ListenerAdapter() {
 
-    private val radioUrl = "https://Qurango.net/radio/tarateel"
+    companion object {
+        // From https://mp3quran.net/api/v3/radios?language=eng
+        const val RADIO_URL = "https://backup.qurango.net/radio/tarateel"
+    }
 
     override fun onSlashCommandInteraction(event: SlashCommandInteractionEvent) {
         if (event.name != "radio") {
@@ -29,7 +32,7 @@ class RadioCommand : ListenerAdapter() {
 
         audioManager.sendingHandler = guildAudioManager.playerSendHandler
 
-        guildAudioManager.playerManager.loadItem(radioUrl, object : AudioLoadResultHandler {
+        guildAudioManager.playerManager.loadItem(RADIO_URL, object : AudioLoadResultHandler {
             override fun trackLoaded(track: AudioTrack) {
                 guildAudioManager.player.playTrack(track)
                 return event.sendReply("Now streaming Qur'an recitations.")
