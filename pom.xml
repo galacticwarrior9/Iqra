@@ -15,7 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>17</kotlin.compiler.jvmTarget>
-        <kotlin.version>2.0.0</kotlin.version>
+        <kotlin.version>2.2.21</kotlin.version>
     </properties>
 
     <repositories>
@@ -45,7 +45,6 @@
 
     <build>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
-        <testSourceDirectory>src/test/kotlin</testSourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
@@ -57,13 +56,6 @@
                         <phase>compile</phase>
                         <goals>
                             <goal>compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>test-compile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>test-compile</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -134,7 +126,7 @@
         <dependency>
             <groupId>com.github.DV8FromTheWorld</groupId>
             <artifactId>JDA</artifactId>
-            <version>v5.0.0-beta.20</version>
+            <version>v5.6.0</version>
         </dependency>
         <!-- https://github.com/sedmelluq/jda-nas -->
         <dependency>
@@ -157,7 +149,7 @@
         <dependency>
             <groupId>club.minnced</groupId>
             <artifactId>jda-ktx</artifactId>
-            <version>0.11.0-beta.20</version>
+            <version>0.13.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -199,5 +191,4 @@
             <version>0.5.11</version>
         </dependency>
     </dependencies>
-
 </project>

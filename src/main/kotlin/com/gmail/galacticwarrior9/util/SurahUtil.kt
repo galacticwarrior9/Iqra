@@ -67,5 +67,5 @@ suspend fun getSurahMeta(surahNum: Int, languageCode: String = "en"): SurahMeta?
     val translatedName = json.get("translated_name").asJsonObject.get("name").asString
     val revelationLocation = json.get("revelation_place").asString
 
-    return@withContext SurahMeta(arabicName, transliteratedName, translatedName, verseCount, RevelationLocation.valueOf(revelationLocation.toUpperCase()))
+    return@withContext SurahMeta(arabicName, transliteratedName, translatedName, verseCount, RevelationLocation.valueOf(revelationLocation.uppercase()))
 }

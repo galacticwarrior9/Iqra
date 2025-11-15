@@ -9,6 +9,7 @@ import com.jagrosh.jdautilities.commons.waiter.EventWaiter
 import com.jagrosh.jdautilities.menu.ButtonEmbedPaginator
 import dev.minn.jda.ktx.events.CoroutineEventListener
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 import me.xdrop.fuzzywuzzy.FuzzySearch
 import net.dv8tion.jda.api.EmbedBuilder
@@ -46,7 +47,7 @@ class RecitersCommand(private val waiter: EventWaiter): CoroutineEventListener {
             return
         }
 
-        val type = event.getOption("type") { ReciterType.valueOf(it.asString.toUpperCase()) }!!
+        val type = event.getOption("type") { ReciterType.valueOf(it.asString.uppercase()) }!!
         var reciters = getReciters(type)
         if (reciters.isEmpty()) {
             return event.sendReply("Could not retrieve reciters list! Please try again later.", true)
@@ -77,9 +78,8 @@ class RecitersCommand(private val waiter: EventWaiter): CoroutineEventListener {
 
         return event.replyEmbeds(EmbedBuilder().setDescription("Displaying reciters..").build())
             .queue { interactionHook -> interactionHook.retrieveOriginal().queue { message ->
-                    paginator.display(message)
-                }
-            }
+                paginator.display(message)
+            } }
     }
 }
 
