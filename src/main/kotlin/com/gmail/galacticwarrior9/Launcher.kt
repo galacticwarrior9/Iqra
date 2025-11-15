@@ -24,7 +24,7 @@ fun main() {
             GatewayIntent.GUILD_MODERATION,
             GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
             GatewayIntent.GUILD_MESSAGE_REACTIONS)
-        .setMemberCachePolicy(MemberCachePolicy.VOICE.or(MemberCachePolicy.OWNER))
+        .setMemberCachePolicy(MemberCachePolicy.NONE) // see https://github.com/discord-jda/JDA/releases/tag/v5.5.0
         .injectKTX() // apply CoroutineEventManager
         .build()
 

@@ -77,9 +77,9 @@ class RecitersCommand(private val waiter: EventWaiter): CoroutineEventListener {
             .build()
 
         return event.replyEmbeds(EmbedBuilder().setDescription("Displaying reciters..").build())
-            .queue { interactionHook -> interactionHook.retrieveOriginal().queue { message ->
-                paginator.display(message)
-            } }
+            .map { hook -> hook.callbackResponse.message }
+            .map { message -> paginator.display(message) }
+            .queue()
     }
 }
 
