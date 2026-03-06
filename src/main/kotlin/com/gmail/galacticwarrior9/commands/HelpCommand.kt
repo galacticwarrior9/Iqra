@@ -1,11 +1,12 @@
 package com.gmail.galacticwarrior9.commands
 
 import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.components.actionrow.ActionRow
+import net.dv8tion.jda.api.components.selections.StringSelectMenu
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
 
 class HelpCommand : ListenerAdapter() {
@@ -40,7 +41,12 @@ class HelpCommand : ListenerAdapter() {
             .addOption("Reciters", "Learn how to browse and search for reciters.")
             .build()
 
-        event.reply(MessageCreateBuilder().setEmbeds(embedBuilder.build()).setActionRow(menu).build()).queue()
+        event.reply(
+            MessageCreateBuilder()
+                .setEmbeds(embedBuilder.build())
+                .setComponents(ActionRow.of(menu))
+                .build()
+        ).queue()
     }
 
     override fun onStringSelectInteraction(event: StringSelectInteractionEvent) {

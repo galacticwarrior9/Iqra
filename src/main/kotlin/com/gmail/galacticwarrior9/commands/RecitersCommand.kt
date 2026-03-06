@@ -9,20 +9,20 @@ import com.jagrosh.jdautilities.commons.waiter.EventWaiter
 import com.jagrosh.jdautilities.menu.ButtonEmbedPaginator
 import dev.minn.jda.ktx.events.CoroutineEventListener
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 import me.xdrop.fuzzywuzzy.FuzzySearch
 import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.components.buttons.ButtonStyle
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.events.GenericEvent
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.net.URL
 import java.net.URLConnection
 import java.util.concurrent.TimeUnit
+import kotlin.math.ceil
 
 
 val surahReciterListUrl = URL("https://mp3quran.net/api/_english.php")
@@ -84,12 +84,12 @@ class RecitersCommand(private val waiter: EventWaiter): CoroutineEventListener {
 }
 
 private fun paginateReciters(reciters: List<Reciter>): List<MessageEmbed> {
-    val numberOfPages = Math.ceil(reciters.size.toDouble() / 10).toInt()
+    val numberOfPages = ceil(reciters.size.toDouble() / 10).toInt()
 
     val reciterPageEmbeds = mutableListOf<MessageEmbed>()
     val reciterEmbedBuilder = EmbedBuilder()
         .setTitle("Reciters")
-        .setFooter("Page 1 of ${numberOfPages}")
+        .setFooter("Page 1 of $numberOfPages")
         .setColor(0x2a6b2b)
 
     // For every 10 reciters, we build an embed
@@ -102,7 +102,7 @@ private fun paginateReciters(reciters: List<Reciter>): List<MessageEmbed> {
         if (!reciterIterator.hasNext() || counter == 10) {
             reciterPageEmbeds.add(reciterEmbedBuilder.build())
             reciterEmbedBuilder.descriptionBuilder.clear()
-            reciterEmbedBuilder.setFooter("Page ${reciterPageEmbeds.size + 1} of ${numberOfPages}")
+            reciterEmbedBuilder.setFooter("Page ${reciterPageEmbeds.size + 1} of $numberOfPages")
             counter = 0
         }
     }
