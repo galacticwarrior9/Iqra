@@ -42,6 +42,11 @@
             <name>m2-chew</name>
             <url>https://m2.chew.pro/releases</url>
         </repository>
+        <repository>
+            <id>arbjergDev-snapshots</id>
+            <name>lavalink-dev</name>
+            <url>https://maven.lavalink.dev/snapshots</url>
+        </repository>
     </repositories>
 
     <build>
@@ -191,31 +196,26 @@
             <artifactId>expiringmap</artifactId>
             <version>0.5.11</version>
         </dependency>
-        <!-- https://github.com/MinnDevelopment/jdave -->
+        <!-- https://github.com/KyokoBot/libdave-jvm -->
         <dependency>
-            <groupId>club.minnced</groupId>
-            <artifactId>jdave-api</artifactId>
-            <version>0.1.7</version>
+            <groupId>moe.kyokobot.libdave</groupId>
+            <artifactId>adapter-jda</artifactId>
+            <version>ce725965e</version>
         </dependency>
         <dependency>
-            <groupId>club.minnced</groupId>
-            <artifactId>jdave-native-linux-x86-64</artifactId>
-            <version>0.1.7</version>
+            <groupId>moe.kyokobot.libdave</groupId>
+            <artifactId>impl-jni</artifactId>
+            <version>ce725965e</version>
         </dependency>
         <dependency>
-            <groupId>club.minnced</groupId>
-            <artifactId>jdave-native-linux-aarch64</artifactId>
-            <version>0.1.7</version>
+            <groupId>moe.kyokobot.libdave</groupId>
+            <artifactId>natives-linux-x86-64</artifactId>
+            <version>ce725965e</version>
         </dependency>
         <dependency>
-            <groupId>club.minnced</groupId>
-            <artifactId>jdave-native-win-x86-64</artifactId>
-            <version>0.1.7</version>
-        </dependency>
-        <dependency>
-            <groupId>club.minnced</groupId>
-            <artifactId>jdave-native-darwin</artifactId>
-            <version>0.1.7</version>
+            <groupId>moe.kyokobot.libdave</groupId>
+            <artifactId>natives-win-x86-64</artifactId>
+            <version>ce725965e</version>
         </dependency>
     </dependencies>
 </project>
