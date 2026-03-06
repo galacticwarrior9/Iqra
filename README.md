@@ -69,7 +69,7 @@ leave the channel, use `/leave`.
 
 ## Information for Developers
 
-To build Iqra, you require JDK 17 or above on your system. Clone this repository, install [Maven](https://maven.apache.org/install.html) and then run the following command:
+To build Iqra, you require JDK 25 or above on your system. Clone this repository, install [Maven](https://maven.apache.org/install.html) and then run the following command:
 
 ```
 mvn clean install

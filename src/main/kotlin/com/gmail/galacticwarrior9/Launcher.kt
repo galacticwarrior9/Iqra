@@ -1,5 +1,6 @@
 package com.gmail.galacticwarrior9
 
+import club.minnced.discord.jdave.interop.JDaveSessionFactory
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory
 import dev.minn.jda.ktx.jdabuilder.injectKTX
 import net.dv8tion.jda.api.JDABuilder
@@ -14,7 +15,10 @@ import net.dv8tion.jda.api.utils.cache.CacheFlag
 fun main() {
     val jda = DefaultShardManagerBuilder.createDefault(System.getenv("token"))
         .setActivity(Activity.listening("Qurʾān - /help"))
-        .setAudioModuleConfig(AudioModuleConfig().withAudioSendFactory(NativeAudioSendFactory()))
+        .setAudioModuleConfig(AudioModuleConfig()
+            .withDaveSessionFactory(JDaveSessionFactory())
+            .withAudioSendFactory(NativeAudioSendFactory())
+        )
         .disableCache(CacheFlag.ACTIVITY,
             CacheFlag.EMOJI,
             CacheFlag.STICKER,
